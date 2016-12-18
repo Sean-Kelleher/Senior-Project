@@ -1,0 +1,3 @@
+database of historical events and people ("entities"). Each links to at least a few others: The entities that led to it, and the entities that directly resulted from it.
+Put this on a visual timeline. You can select individual slices of time to view the entities in that time.
+

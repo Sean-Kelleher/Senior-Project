@@ -1,0 +1,4 @@
+database of events, database of relations? 
+x is related to y, z is also related to x
+each event has a list of related topics
+e
