@@ -18,22 +18,22 @@ app.use(express.static('public'))
 // respond with "hello world" when a GET request is made to the homepage
 app.get('/api', function (req, res) {
     connection.connect();
-    connection.query('SELECT name FROM event;', function(err, rows, fields) {
+    connection.query('SELECT name FROM events;', function(err, rows, fields) {
       if (err) 
       {
         throw err;
       }
 
-      var output = 'The solution is: ' + rows[0].solution;
+  //    var output = 'The solution is: ' + rows[0].solution;
 
-      console.log('output = ' + output);
+      //console.log('output = ' + output);
 
       console.log(JSON.stringify({
           rows: rows,
           fields: fields
-      }));
+      }, null, 2));
 
-      res.send(output);
+      res.send("heya");
     });
     connection.end();
 });
