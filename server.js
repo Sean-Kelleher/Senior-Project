@@ -14,13 +14,20 @@ var connection = mysql.createConnection({
   database : 'historydb'
 });
 
-
 app.use(express.static(__dirname + '/public'));
 
 app.use(bodyParser.urlencoded({ extended: true }));
-connection.connect();
+connection.connect({multipleStatements: true});
 
 function arithmetic(start,end,eraStart,eraEnd){
+  if(eraStart=="BCE")
+  {
+    start=0-start;
+  }
+  if(eraEnd=="BCE")
+  {
+    end=0-end;
+  }
   if(eraStart=="CE" && eraEnd=="CE")
   {
     totes=end-start;
@@ -33,40 +40,24 @@ function arithmetic(start,end,eraStart,eraEnd){
   {
     totes=Math.abs(start)+Math.abs(end);
   }
-        return Math.abs(totes);
+  return Math.abs(totes);
 }
 
-function calculate(req){
-    var start,
-        end;
-    var eraStart=req.body.era1;
-    var eraEnd=req.body.era2;
-    if(eraStart=="CE" && eraEnd=="BCE")
-    {
-      alert("you can't start with CE and end with BCE");
-    }
 
-    else
-    {
-      start=req.body.start;
-      end=req.body.end;
-      interval=req.body.interval;      
-      if(eraStart=="BCE")
+app.get('/getevents', function(req,res){
+  connection.query('SELECT name, id FROM events;',
+    function(err, rows, fields) {
+      if (err) 
       {
-        start=0-start;
+        throw err;
       }
-      if(eraEnd=="BCE")
-      {
-        end=0-end;
-      }
-      return arithmetic(start,end,eraStart,eraEnd);
+      res.send(JSON.stringify(rows));        
     }
-  }
+  )
+});
 
-
-app.post('/myaction', function(req, res) {
-  var total = calculate(req);
-
+app.post('/timeline', function(req, res) {
+  var total = arithmetic(req.body.start, req.body.end,req.body.era1,req.body.era2);
   connection.query('INSERT INTO  timeline(title,era_start,era_end,intervals,start,end,length) VALUES ("'+ req.body.title +'","'+
     req.body.era1+'","' + req.body.era2 +'","'+req.body.interval+'","'+req.body.start+'","'+req.body.end+'","'+total+'");',
     function(err, rows, fields) {
@@ -76,7 +67,54 @@ app.post('/myaction', function(req, res) {
       }
     }
   );
+  res.send("success!");
+});
 
+
+app.post('/event', function(req, res) {
+  var startyear=req.body.startyear;
+  var description = req.body.description;
+  var endyear = req.body.endyear;
+  var startera = req.body.startera;
+  var endera = req.body.endera;
+  var name = req.body.name;
+  var type = req.body.type;
+  var futureid = req.body.future;
+  var pastid = req.body.past;
+
+  connection.query("INSERT INTO events(name,description,startyear,endyear,startera,endera,type) VALUES('"+name+"','"
+    +description+"',"+ startyear + "," +endyear+",'"+startera+"','" +endera+"','" +type+"');",
+    function(err, rows, fields) {      
+      if (err) 
+      {
+        throw err;
+      }
+      var eventid=rows.insertId;
+
+      if(futureid!=null)
+      {
+        connection.query("INSERT INTO future_connections(event_id,fut_id) VALUES('"+eventid+"','"+futureid+"');",
+          function(err, rows, fields) {
+             if (err)
+             {
+               throw err;
+             }
+           }
+        );
+      }    
+      if(pastid!=null)
+      {
+        connection.query("INSERT INTO past_connections(event_id,past_id) VALUES('"+eventid+"','"+pastid+"');",
+          function(err, rows, fields) {
+             if (err)
+             {
+               throw err;
+             }
+           }
+        );
+      }
+    }
+  );
   res.send("success!");
 });
 
