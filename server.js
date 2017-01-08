@@ -56,6 +56,18 @@ app.get('/getevents', function(req,res){
   )
 });
 
+app.get('/getyears', function(req, res){
+  connection.query("SELECT start, end, intervals FROM timeline;",
+      function(err, rows, fields){
+        if(err)
+        {
+          throw err;
+        }
+        res.send(JSON.stringify(rows));
+      }
+    )
+})
+
 app.post('/timeline', function(req, res) {
   var total = arithmetic(req.body.start, req.body.end,req.body.era1,req.body.era2);
   connection.query('INSERT INTO  timeline(title,era_start,era_end,intervals,start,end,length) VALUES ("'+ req.body.title +'","'+
@@ -70,6 +82,21 @@ app.post('/timeline', function(req, res) {
   res.send("success!");
 });
 
+app.post('/trend',function(req,res) {
+  if(req.body.start>req.body.end)
+  {
+    alert("Invalid: Trend cannot end before it's begun.");
+  }
+  connection.query('INSERT INTO trend (start,end,name,type) VALUES("'+req.body.start+'","'+req.body.end+'","'+req.body.name+'","'
+    +req.body.type+"';", 
+    function(err,rows,fields){
+      if(err)
+      {
+        throw err;
+      }
+    }
+  );
+});
 
 app.post('/event', function(req, res) {
   var startyear=req.body.startyear;
