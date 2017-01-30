@@ -5,7 +5,7 @@ CREATE TABLE events(
 	id INT PRIMARY KEY AUTO_INCREMENT,
 	name VARCHAR(255) NOT NULL,
 	description VARCHAR(255) DEFAULT " ",
-	year INT NOT NULL,
+	year INT NOT NULL DEFAULT "0",
 	era ENUM('BCE','CE') NOT NULL,
 	type ENUM('political', 'natural', 'war', 'sci-tech', 'economic', 'cultural', 'other') NOT NULL
 );
