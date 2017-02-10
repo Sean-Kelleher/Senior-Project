@@ -4,104 +4,26 @@
 	<head>
 		<!--<script type="text/javascript" src="script.js"></script>
 		<link rel="stylesheet" type="text/css" href="style.css">
-		<style type="text/css">
+		<style type="text/css"><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 					
 		</style>-->
-		 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		 <script src="d3.min.js"></script>
+		<script src="viewscript.js"></script>	
 	</head>
-<!-- there will be 3 canvases, all in layers: Line atop Main atop Trends. As you go down the page they get added on top.-->
-	<body>
+<!-- there will be 3 canvases, all in layers: Line atop Bubbles atop Trends. As you go down the page they get added on top.-->
+	<body>		
+		<svg id="#svgTrends" width="1020" height = "400" style="border:1px dotted black;">
 		
-		<canvas id="canTrends" style="position: fixed;"></canvas>
-		<canvas id="canMain" style="position: fixed;"></canvas>
-		<canvas id="canLine" style="position: relative;" height="20px"></canvas>
+		</svg>
+		<svg id="#svgBubbles" width="1020" height = "400" style="border:1px dotted black;">
+			
+		</svg>
+
+		<svg id="#svgLine" width="1020" height = "400" style="border:1px dotted black;">
+			<line x1="10" y1="390" x2="1010" y2="390" style="stroke:black;stroke-width:2"/>
+		</svg>
 				
 		<script type="text/javascript">
-		$(document).ready(function(){
-			const main = document.getElementById('canMain'),
-				 ctxMn = main.getContext("2d"),
-				 trends = document.getElementById('canTrends'),
-				 ctxTr = trends.getContext("2d"),
-				 line = document.getElementById('canLine'),
-				ctxLn = line.getContext("2d"),
-				tix = document.getElementById("canTicks");
-			var docAry = document.getElementsByTagName("canvas");
-			var ticksAry=[];
-			
-			//user-inputted information
-			var end=; //end of the time period the user wants to examine
-			var begin=; //beginning of above
-			var interval=; //the intervals chosen by the user
-
-			var width = window.innerWidth-20;
-			var height = window.innerHeight-40;
-			var years=end-begin;
-			var shown=0;
-			var counting=begin;
-			
-			var yearTicks = width/years;
-			var ticksShown = [];
-			//make an array full of the ticks, intervals of 1
-			for(var i=0;i<years;i++)
-			{
-				ticksAry[i]=begin+i;
-			}
-
-			for(var i=0;i<docAry.length;i++)
-			{
-				docAry[i].width=width;
-				docAry[i].height=height;
-				line.height=30;
-			}
-			while(counting<end) 
-			{
-				ticksShown.push(counting);
-				counting+=interval;
-			}
-			line.style.top=height-30 + "px";
-		 
-			
-			function drawMain(){
- 
-			}
-			function drawTrends(){
- 
-			}
-			function drawLine(){
-				//draw the base line
-				ctxLn.beginPath();
-				ctxLn.lineWidth=4;
-				ctxLn.strokeStyle = "black";
-				ctxLn.moveTo(0, 10);
-				ctxLn.lineTo(width, 10);
-				ctxLn.stroke();
-				//tick marks
-
-			}
-			function drawYearTicks(){
-			
-				ctxLn.lineWidth=2;
-				ctxLn.strokeStyle="black";
-				var pos=5;
-				for(var i=0;i<years;i++)
-				{
-					ctxLn.font="12px Arial";
-					if(ticksShown.includes(ticksAry[i]))
-					{
-						ctxLn.moveTo(pos,0);
-					ctxLn.lineTo(pos, 20);
-						ctxLn.stroke();	
-						ctxLn.fillText(ticksAry[i],pos-1,30);
-					}
-					pos +=yearTicks;
-				}
-			}
-
-			drawLine();	
-			drawYearTicks();
-			//drawTrends();
-			//drawMain();
-		});
 		</script>
 	</body>
 </html>

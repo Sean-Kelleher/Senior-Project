@@ -45,7 +45,7 @@ function arithmetic(start,end,eraStart,eraEnd){
 
 
 app.get('/getevents', function(req,res){
-  connection.query('SELECT name, id FROM events;',
+  connection.query('SELECT name, id, type FROM events;',
     function(err, rows, fields) {
       if (err) 
       {
@@ -56,8 +56,57 @@ app.get('/getevents', function(req,res){
   )
 });
 
-app.get('/getyears', function(req, res){
-  connection.query("SELECT start, end, intervals FROM timeline;",
+app.get('/gettrends',function(req,res){
+  connection.query('SELECT start, end, type FROM trend;',
+    function(err, rows, fields) {
+      if(err)
+      {
+        throw err;
+      }
+      res.send(JSON.stringify(rows));
+    }
+  )
+})
+
+app.get('/getbubbles',function(req,res){
+  connection.query('SELECT name, type, description, startyear, endyear, startera, endera, id FROM events UNION SELECT length, intervals, start FROM timeline;',
+    function(err, rows, fields) {
+      if(err)
+      {
+        throw err;
+      }
+      res.send(JSON.stringify(rows));
+    }
+  )
+});
+
+app.get('/getpastconnections',function(req,res){
+  connection.query("SELECT event_id, past_id FROM past_connections;",
+    function(err, rows, fields){
+        if(err)
+        {
+          throw err;
+        }
+        res.send(JSON.stringify(rows));
+      }
+    )
+});
+
+app.get('/getfutureconnections',function(req,res){
+  connection.query("SELECT event_id, fut_id FROM future_connections;",
+    function(err, rows, fields){
+        if(err)
+        {
+          throw err;
+        }
+        res.send(JSON.stringify(rows));
+      }
+    )
+});
+
+
+app.get('/gettimeline', function(req, res){
+  connection.query("SELECT title, start, end, intervals, era_start, era_end, length FROM timeline;",
       function(err, rows, fields){
         if(err)
         {
@@ -66,7 +115,7 @@ app.get('/getyears', function(req, res){
         res.send(JSON.stringify(rows));
       }
     )
-})
+});
 
 app.post('/timeline', function(req, res) {
   var total = arithmetic(req.body.start, req.body.end,req.body.era1,req.body.era2);
@@ -118,7 +167,7 @@ app.post('/event', function(req, res) {
       }
       var eventid=rows.insertId;
 
-      if(futureid!=null)
+      if(futureid!='')
       {
         connection.query("INSERT INTO future_connections(event_id,fut_id) VALUES('"+eventid+"','"+futureid+"');",
           function(err, rows, fields) {
@@ -129,7 +178,7 @@ app.post('/event', function(req, res) {
            }
         );
       }    
-      if(pastid!=null)
+      if(pastid!='')
       {
         connection.query("INSERT INTO past_connections(event_id,past_id) VALUES('"+eventid+"','"+pastid+"');",
           function(err, rows, fields) {
