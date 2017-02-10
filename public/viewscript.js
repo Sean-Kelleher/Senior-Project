@@ -26,12 +26,16 @@ d3.json('gettrends',function(data){
 
 	if(data!=null)
 	{
+		var length = data[0].length;
+		var interval = data[0].intervals;
+		var 
 		for(var i=0;i<data.length;i++)
 		{			
-			var tr = {start:data[0], end:data[1], type:data[2]};
+			var tr = {start:data[i].start, end:data[i].end, type:data[i].type, name:data[i].name};
 			trendAry.push(tr);
 		}
 	}
+	drawTrends(trendAry)
 })
 d3.json('getbubbles', function(data){
 	var bubbleAry = []; //array of bubbles
@@ -77,16 +81,63 @@ d3.json('gettimeline', function(data){
 	drawTicks(length, interval, startyear, endyear);
 });
 
+
 function drawBubble(bubbleAry, length, start, interval){
-	var svg = document.getElementById("#svgBubbles");	
+	var svg = document.getElementById("#svgBubbles");
 	var yearPix = 1000/length; //amount of pixels per year
-	var yearsAry = []; //an array that contains all the years, with the pixel location for each year
+	var yearsAry = []; //an array that contains all the years
+	var pixelsAry = []; //am array that contains the pixel location for each year
 	var eventStarts = []; //array of starting years
 	var eventEnds = []; //array of ending years
+	var startPix = []; //array of pixel locations for starting years
+	var endPix = []; //array of pixel locations for ending years
+	var pixels = 0;
+	var eventsLength = bubbleAry.length;
+
+	while(start<length)
+	{
+		yearsAry.push(start);
+		pixelsAry.push(pixels);
+		pixels += yearPix;
+		start++;
+	}
+
+	for(var i = 0; i< eventsLength; i++)
+	{
+		eventStarts.push(bubbleAry[i].startYear);
+		eventEnds.push(bubbleAry[i].endYear);
+		
+	}
+	
+	for(var i = 0; i< eventsLength; i++)
+	{
+		var stIndex = yearsAry.indexOf(eventStarts[i]);
+		var edIndex = yearsAry.indexOf(eventEnds[i]);
+		console.log(stIndex);
+		console.log(edIndex);
+		startPix.push(pixelsAry[stIndex]);
+		endPix.push(pixelsAry[edIndex]);
+	}
+ 
+}
+
+
+function drawTrends(trends)
+{
+	var svg = document.getElementById("#svgTrends");	
+	var yearPix = 1000/length; //amount of pixels per year
+	var yearsAry = []; //an array that contains all the years, with the pixel location for each year
+	var trendStarts = []; //array of starting years
+	var trendEnds = []; //array of ending years
 	var startPix = [];
 	var endPix = [];
 	var pixels = 0;
-	var eventsLength = bubbleAry.length;
+
+	/*
+	...find index ?
+	once i have the year, match it to a pixel amount
+	yeah, find index
+	*/
 
 	while(start<length)
 	{
@@ -111,7 +162,8 @@ function drawBubble(bubbleAry, length, start, interval){
 	}
 	for(var i = 0; i< eventsLength; i++)
 	{
-		
+		startPix.push();
+		endPix.push();
 	}
 }
 
