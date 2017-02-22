@@ -69,15 +69,15 @@ app.get('/gettrends',function(req,res){
 })
 
 app.get('/getbubbles',function(req,res){
-  connection.query('SELECT name, type, startyear, endyear, startera, endera FROM events UNION SELECT length, intervals, start, end, era_start, era_end FROM timeline;',
-    function(err, rows, fields) {
-      if(err)
-      {
-        throw err;
-      }
-      res.send(JSON.stringify(rows));
-    }
-  )
+  connection.query('SELECT name, type, startyear, endyear, startera, endera FROM events;',
+    function(err1, rows1, fields1) {
+      connection.query('SELECT length, intervals, start, end, era_start, era_end FROM timeline;',
+        function(err2, rows2, fields2) {
+          var obj = {'events': rows1, 'timeline': rows2};
+          res.send(JSON.stringify(obj));
+        });
+    });
+  
 });
 
 //app.get('/getdescription')

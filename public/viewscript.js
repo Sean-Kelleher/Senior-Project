@@ -35,18 +35,23 @@ d3.json('getbubbles', function(data){
 
 	if(data!=null)
 	{
-		var length = data[0].length;
-		var start = data[0].start;
-		var interval = data[0].intervals;
-		var startEra = data[0].era_start;
-		var endEra = data[0].era_end;
-		for(var i=0;i<data.length;i++)
+		//this all becomes data.timeline[0]
+		var length = data.timeline[0].length;
+		var start = data.timeline[0].start;
+		var interval = data.timeline[0].intervals;
+		var startEra = data.timeline[0].era_start;
+		var endEra = data.timeline[0].era_end;
+		var end = data.timeline[0].end;
+		
+		for(var i=0;i<data.events.length;i++)
 		{		
-			var bubble = {name: data[i].name, type: data[i].type, startYear:data[i].startyear, endYear:data[i].endyear};
+			var bubble = {name: data.events[i].name, type: data.events[i].type, 
+				startYear:data.events[i].startyear, endYear:data.events[i].endyear};
+			
 			bubbleAry.push(bubble);
 		}	
 	}
-	drawBubble(bubbleAry, length, start, interval, startEra, endEra);
+	drawBubble(bubbleAry, length, start, interval, end, startEra, endEra);
 	//desc:data[i].description, startEra:data[i].startera, endEra:data[i].endera,
 	
 });
@@ -85,10 +90,7 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra){
 	var endPix = []; //array of pixel locations for ending years
 	var pixels = 0;
 	var eventsLength = bubbleAry.length;
-	var i =0;
-	console.log(length);
-	console.log(endEra);
-	console.log(end);
+	var i = 0;
 
 	while(i<length)
 	{
@@ -97,7 +99,7 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra){
 	}
 	if(startEra == "CE" && endEra == "CE")
 	{	
-		while(start<end)
+		while(start < end)
 		{
 			yearsAry.push(start);
 			start++;
@@ -127,36 +129,22 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra){
 	for(var i=0; i < yearsAry.length; i++)
 	{
 		pixelsAry.push(pixels);
-		console.log(pixels);
 		pixels += yearPix;
 	}
-	console.log("pixels:");
-	console.log(pixelsAry);
-
-	console.log("years:");
-	console.log(yearsAry);
-	 
-	console.log("length:");
-	console.log(lengthAry);
-	/*
 	for(var i = 0; i< eventsLength; i++)
 	{
 		eventStarts.push(bubbleAry[i].startYear);
 		eventEnds.push(bubbleAry[i].endYear);
 	}
-	
 	for(var i = 0; i< eventsLength; i++)
 	{
 		var evst = eventStarts[i];
 		var eved = eventEnds[i];
 		var stIndex = yearsAry.indexOf(evst);
 		var endIndex = yearsAry.indexOf(eved);
-		console.log(stIndex);
-		console.log(endIndex);
 		startPix.push(pixelsAry[stIndex]);
 		endPix.push(pixelsAry[endIndex]);
-	}*/
-	
+	}
 }
 
 function drawTrends(trends, length, interval, start)
