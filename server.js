@@ -57,7 +57,7 @@ app.get('/getevents', function(req,res){
 });
 
 app.get('/gettrends',function(req,res){
-  connection.query('SELECT start, end, type FROM trend;',
+  connection.query('SELECT startyear, endyear, type, name FROM trend UNION SELECT length, intervals, start, end FROM timeline;',
     function(err, rows, fields) {
       if(err)
       {
@@ -69,7 +69,7 @@ app.get('/gettrends',function(req,res){
 })
 
 app.get('/getbubbles',function(req,res){
-  connection.query('SELECT name, type, description, startyear, endyear, startera, endera, id FROM events UNION SELECT length, intervals, start FROM timeline;',
+  connection.query('SELECT name, type, startyear, endyear, startera, endera FROM events UNION SELECT length, intervals, start, end, era_start, era_end FROM timeline;',
     function(err, rows, fields) {
       if(err)
       {
@@ -79,6 +79,8 @@ app.get('/getbubbles',function(req,res){
     }
   )
 });
+
+//app.get('/getdescription')
 
 app.get('/getpastconnections',function(req,res){
   connection.query("SELECT event_id, past_id FROM past_connections;",
