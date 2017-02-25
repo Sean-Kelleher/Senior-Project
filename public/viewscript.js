@@ -1,5 +1,3 @@
-//timeline-related variables
-
 //colors of things
 var warColor = "#ff6600";
 var otherColor = "#898989";
@@ -17,17 +15,20 @@ d3.json('gettrends',function(data){
 
 	if(data!=null)
 	{
-		var length = data[0].length;
-		var interval = data[0].intervals;		
-		var start = data[0].start;
-		for(var i=0;i<data.length;i++)
+		var length = data.timeline[0].length;
+		var start = data.timeline[0].start;
+		var interval = data.timeline[0].intervals;
+		var startEra = data.timeline[0].era_start;
+		var endEra = data.timeline[0].era_end;
+		var end = data.timeline[0].end;
+		for(var i=0;i<data.trends.length;i++)
 		{			
-			var tr = {start:data[i].startyear, end:data[i].endyear, type:data[i].type, name:data[i].name};
+			var tr = {start:data.trends[i].startyear, end:data.trends[i].endyear, type:data.trends[i].type, name:data.trends[i].name};
 			trendAry.push(tr);
 		}
 	}
-
-	drawTrends(trendAry, length, interval, start);
+	
+	drawTrends(trendAry, length, start, interval, end, startEra, endEra);
 })
 
 d3.json('getbubbles', function(data){
@@ -77,6 +78,76 @@ d3.json('gettimeline', function(data){
 	}
 	drawTicks(length, interval, startyear, endyear);
 });
+
+function drawTrends(trends, length, start, interval, end, startEra, endEra)
+{
+	console.log(trends[0]);
+	var svg = document.getElementById("#svgTrends");	
+	var yearPix = 1000/length; //amount of pixels per year
+	var yearsAry = []; //an array that contains all the years
+	var pixelsAry = []; //am array that contains the pixel location for each year
+	var trendStarts = []; //array of starting years
+	var trendEnds = []; //array of ending years
+	var startPix = [];
+	var endPix = [];
+	var pixels = 0;
+	var trendsLength = trends.length;
+	var lengthAry = []; //array of 0-end
+	var i = 0;
+	while(i<length)
+	{
+		lengthAry.push(i);
+		i++;
+	}
+	if(startEra == "CE" && endEra == "CE")
+	{	
+		while(start < end)
+		{
+			yearsAry.push(start);
+			start++;
+		}
+	}
+	else if(startEra=="BCE" && endEra=="CE")
+	{
+		while(start > 0)
+		{
+			yearsAry.push(start);
+			start--;
+			len--;
+		}
+		for(var i = 0; i < len; i++)
+		{
+			yearsAry.push(i);
+		}
+	}
+	else if(startEra == "BCE" && endEra == "BCE")
+	{
+		while(start > end)
+		{
+			yearsAry.push(start);
+			start--;
+		}
+	}
+	for(var i=0; i < yearsAry.length; i++)
+	{
+		pixelsAry.push(pixels);
+		pixels += yearPix;
+	}
+	for(var i = 0; i< trendsLength; i++)
+	{
+		trendStarts.push(trends[i].start);
+		trendEnds.push(trends[i].end);
+	}
+	for(var i = 0; i< trendsLength; i++)
+	{
+		var trst = trendStarts[i];
+		var tred = trendEnds[i];
+		var stIndex = yearsAry.indexOf(trst);
+		var endIndex = yearsAry.indexOf(tred);
+		startPix.push(pixelsAry[stIndex]);
+		endPix.push(pixelsAry[endIndex]);
+	}
+}
  
 function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra){
 	var svg = document.getElementById("#svgBubbles");
@@ -145,41 +216,6 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra){
 		startPix.push(pixelsAry[stIndex]);
 		endPix.push(pixelsAry[endIndex]);
 	}
-}
-
-function drawTrends(trends, length, interval, start)
-{
-	var svg = document.getElementById("#svgTrends");	
-	var yearPix = 1000/length; //amount of pixels per year
-	var yearsAry = []; //an array that contains all the years
-	var pixelsAry = []; //am array that contains the pixel location for each year
-	var trendStarts = []; //array of starting years
-	var trendEnds = []; //array of ending years
-	var startPix = [];
-	var endPix = [];
-	var pixels = 0;
-	var trendsLength = trends.length;
-
-	while(start<length)
-	{
-		yearsAry.push(start);
-		pixelsAry.push(pixels);
-		pixels += yearPix;
-		start++;
-	}
-
-	for(var i = 0; i< trendsLength; i++)
-	{
-		trendStarts.push(trends[i].startYear);
-		trendEnds.push(trends[i].endYear);
-	}
-	for(var i = 0; i< trendsLength; i++)
-	{
-		startPix.push();
-		endPix.push();
-	}
-	console.log("trends works");
- 
 }
 
 function drawTicks(length, interval, startyear, endyear){

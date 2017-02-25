@@ -57,15 +57,14 @@ app.get('/getevents', function(req,res){
 });
 
 app.get('/gettrends',function(req,res){
-  connection.query('SELECT startyear, endyear, type, name FROM trend UNION SELECT length, intervals, start, end FROM timeline;',
-    function(err, rows, fields) {
-      if(err)
-      {
-        throw err;
-      }
-      res.send(JSON.stringify(rows));
-    }
-  )
+  connection.query('SELECT startyear, endyear, type, name FROM trend;',
+    function(err1, rows1, fields1) {
+      connection.query('SELECT length, intervals, start, end, era_start, era_end FROM timeline;',
+        function(err2, rows2, fields2) {
+          var obj = {'trends': rows1, 'timeline': rows2};
+          res.send(JSON.stringify(obj));
+        });
+      });
 })
 
 app.get('/getbubbles',function(req,res){
