@@ -52,8 +52,7 @@ app.get('/getevents', function(req,res){
         throw err;
       }
       res.send(JSON.stringify(rows));        
-    }
-  )
+    });
 });
 
 app.get('/gettrends',function(req,res){
@@ -65,7 +64,7 @@ app.get('/gettrends',function(req,res){
           res.send(JSON.stringify(obj));
         });
       });
-})
+});
 
 app.get('/getbubbles',function(req,res){
   connection.query('SELECT name, type, startyear, endyear, startera, endera FROM events;',
@@ -76,34 +75,21 @@ app.get('/getbubbles',function(req,res){
           res.send(JSON.stringify(obj));
         });
     });
-  
 });
-
+app.get('/getconnections',function(req,res){
+  connection.query('SELECT event_id, past_id FROM past_connections;',
+    function(err1, rows1, fields1) {
+      connection.query('SELECT event_id, fut_id FROM future_connections;',
+        function(err2, rows2, fields2) {
+          connection.query('SELECT id, startyear, startera FROM events;',
+            function(err3, rows3, fields3){
+              var obj = {'past': rows1, 'future': rows2, 'events' : rows3};
+              res.send(JSON.stringify(obj));
+            });
+        });
+    });  
+});
 //app.get('/getdescription')
-
-app.get('/getpastconnections',function(req,res){
-  connection.query("SELECT event_id, past_id FROM past_connections;",
-    function(err, rows, fields){
-        if(err)
-        {
-          throw err;
-        }
-        res.send(JSON.stringify(rows));
-      }
-    )
-});
-
-app.get('/getfutureconnections',function(req,res){
-  connection.query("SELECT event_id, fut_id FROM future_connections;",
-    function(err, rows, fields){
-        if(err)
-        {
-          throw err;
-        }
-        res.send(JSON.stringify(rows));
-      }
-    )
-});
 
 
 app.get('/gettimeline', function(req, res){
