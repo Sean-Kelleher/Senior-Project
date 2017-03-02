@@ -83,14 +83,18 @@ app.get('/getconnections',function(req,res){
         function(err2, rows2, fields2) {
           connection.query('SELECT id, startyear, startera FROM events;',
             function(err3, rows3, fields3){
-              var obj = {'past': rows1, 'future': rows2, 'events' : rows3};
-              res.send(JSON.stringify(obj));
+              connection.query('SELECT length, start, end, era_start, era_end FROM timeline;',
+                function(err4, rows4, fields4){
+                  var obj = {'past': rows1, 'future': rows2, 'events' : rows3, 'timeline' : rows4};
+                  res.send(JSON.stringify(obj));
+                });
             });
         });
     });  
 });
 //app.get('/getdescription')
 
+              
 
 app.get('/gettimeline', function(req, res){
   connection.query("SELECT title, start, end, intervals, era_start, era_end, length FROM timeline;",
