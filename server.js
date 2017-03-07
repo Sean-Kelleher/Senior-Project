@@ -66,6 +66,17 @@ app.get('/gettrends',function(req,res){
       });
 });
 
+app.get('/gettimeline', function(req, res){
+  connection.query("SELECT title, start, end, intervals, era_start, era_end, length FROM timeline;",
+      function(err, rows, fields){
+        if(err)
+        {
+          throw err;
+        }
+        res.send(JSON.stringify(rows));
+      }
+    )
+});
 app.get('/getbubbles',function(req,res){
   connection.query('SELECT name, type, startyear, endyear, startera, endera FROM events;',
     function(err1, rows1, fields1) {
@@ -94,19 +105,6 @@ app.get('/getconnections',function(req,res){
 });
 //app.get('/getdescription')
 
-              
-
-app.get('/gettimeline', function(req, res){
-  connection.query("SELECT title, start, end, intervals, era_start, era_end, length FROM timeline;",
-      function(err, rows, fields){
-        if(err)
-        {
-          throw err;
-        }
-        res.send(JSON.stringify(rows));
-      }
-    )
-});
 
 app.post('/timeline', function(req, res) {
   var total = arithmetic(req.body.start, req.body.end,req.body.era1,req.body.era2);
