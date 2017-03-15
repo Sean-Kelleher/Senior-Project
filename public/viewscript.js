@@ -172,7 +172,7 @@ function drawTrends(trends, length, start, interval, end, startEra, endEra)
 						stroke = economicColor;
 						break;
 					case "cultural" : 
-						stroke = scitechColor;
+						stroke = culturalColor;
 						break;
 					case "science/technology" : 
 						stroke = scitechColor;
