@@ -7,30 +7,16 @@ var politicalColor = "#669999";
 var economicColor = "#ccccff";
 var culturalColor = "#ffcc99";
 
-//DOM-related variables
-var xmlns = "http://www.w3.org/2000/svg";
-
-d3.json('gettimeline', function(data){ 
-	var interval = 0;
-	var length = 0;
-	var startyear = 0;
-	var endyear = 0;
-	var eraStart = ""; //BCE or CE
-	var endEra = ""; //BCE or CE
-	var lineTitle = "";
-
-	if(data!=null)
-	{
-		startyear = data[0].start;
-		endyear = data[0].end;
-		interval = data[0].intervals;
-		length = data[0].length;
-		eraStart = data[0].era_start;
-		eraEnd = data[0].era_end;
-		lineTitle = data[0].title;
-	}
-	drawTicks(length, interval, startyear, endyear);
-});
+/*
+Possibly: Fill the trends with these
+var culturalLight = "#ffeeaa";
+var politicalColor = "#88bbbb";
+var scitechLight = "#77eeff";
+var warLight = "#ff8844";
+var otherLight = "#979797";
+var naturalLight = '#88ff66';
+var economicLight = "#dedeff";
+*/
 d3.json('gettrends',function(data){
 	var trendAry = []; //array of trends
 	if(data!=null)
@@ -65,7 +51,6 @@ d3.json('getbubbles', function(data){
 		{		
 			var bubble = {name: data.events[i].name, type: data.events[i].type, 
 				startYear:data.events[i].startyear, endYear:data.events[i].endyear};
-			
 			bubbleAry.push(bubble);
 		}	
 	}
@@ -101,67 +86,31 @@ d3.json('getconnections', function(data){
 		drawConnections(past, future, events, startEra, endEra, start, end, length);
 	}
 });
+d3.json('gettimeline', function(data){ 
+	var interval = 0;
+	var length = 0;
+	var startyear = 0;
+	var endyear = 0;
+	var eraStart = ""; //BCE or CE
+	var endEra = ""; //BCE or CE
+	var lineTitle = "";
 
-function drawConnections(past, future, events, startEra, endEra, start, end, length ){
-	var svg = document.getElementById("#svgBubbles");	
-	var tAry = timelineArys (startEra, endEra, start, end, length);
-	var lengthAry = tAry[0];
-	var pixelsAry = tAry[1];
-	var yearsAry = tAry[2];
-	var eventYears = [];
-	var eventIds = [];
-	var pairs = []; //array of objects that are the event id and a pixel amount representing the year
-	events.forEach(function(elem){
-		eventYears.push(elem.year);
-		eventIds.push(elem.id);
-	});
-	
-	for(var i =0; i<events.length;i++)
+	if(data!=null)
 	{
-		var index = yearsAry.indexOf(eventYears[i]);
-		var obj = {id: eventIds[i], pix: pixelsAry[index]};
-		pairs.push(obj);
+		startyear = data[0].start;
+		endyear = data[0].end;
+		interval = data[0].intervals;
+		length = data[0].length;
+		eraStart = data[0].era_start;
+		eraEnd = data[0].era_end;
+		lineTitle = data[0].title;
 	}
-
-	function getIt(index){
-		var ret = pairs.find(function(elem){
-				return elem.id==future[index].eventId;
-			});
-		return ret;
-	}
-	/*
-	console.log("Future:");
-	console.log(future);
-	console.log("Pairs:");
-	console.log(pairs);
-
-	for(var i = 0;i<future.length;i++)
-	{
-		var spotOne = getIt(i);
-		console.log(spotOne.pix);
-	}
-
-
-	for()
- 	iterate through future
- 	for each object in future
- 		find in pairs the object with the same id
- 		get its pix  
- 		draw stuff
-
-
- */
- 	/*
-	iterate through pairs and draw each point
-		
-	
-	*/
-
-}
+	drawTicks(length, interval, startyear, endyear, eraStart, eraEnd);
+});
 
 function drawTrends(trends, length, start, interval, end, startEra, endEra)
 {
-	var svg = d3.select("#svgTrends");	
+	var vis = d3.select("div").append("svg:svg").attr('width', 1000).attr("height", 40);
 	var yearPix = 1000/length; //amount of pixels per year
 	var yearsAry = []; //an array that contains all the years
 	var pixelsAry = []; //am array that contains the pixel location for each year
@@ -169,6 +118,7 @@ function drawTrends(trends, length, start, interval, end, startEra, endEra)
 	var trendEnds = []; //array of ending years
 	var startPix = [];
 	var endPix = [];
+	var allData = [];
 	var pixels = 0;
 	var trendsLength = trends.length;
 	var lengthAry = []; //array of 0-end
@@ -191,6 +141,55 @@ function drawTrends(trends, length, start, interval, end, startEra, endEra)
 		startPix.push(pixelsAry[stIndex]);
 		endPix.push(pixelsAry[endIndex]);
 	}
+	for(var i = 0; i < trendsLength; i++)
+	{
+		var obj = {start: startPix[i] + 10, end: endPix[i] + 10, type: trends[i].type, name: trends[i].name};
+		console.log(obj.start);
+		allData.push(obj);
+	}
+	
+	var polyline = vis.selectAll('polyline').data(allData).enter().append("svg:polyline")
+		polyline.attr('points', function(d){
+			var x1 = d.start;
+			var x2 = d.end;
+			var ret = x1 + ",25 " + x1 + ",15 " + x2 + ",15 " + x2 + ",25";
+			console.log(ret);
+			return ret;
+		})
+		.attr('stroke',function(d){
+				var stroke = "";
+				switch(d.type){
+					case "other" : 
+						stroke = otherColor;
+						break;
+					case "natural" : 
+						stroke = naturalColor;
+						break;
+					case "political" : 
+						stroke = politicalColor;
+						break;
+					case "economic" : 
+						stroke = economicColor;
+						break;
+					case "cultural" : 
+						stroke = scitechColor;
+						break;
+					case "science/technology" : 
+						stroke = scitechColor;
+						break;
+					case "war": 
+						stroke = warColor;	
+						break;
+				}
+				return stroke;
+			})
+			.attr('stroke-width', '2')
+			.attr('fill', 'none'); //possible: Replace the fill with the lighter colors commented above
+	var text = vis.selectAll('text').data(allData).enter().append("svg:text")
+		text.attr('x', function(d){return d.start})
+		.attr('y', '12')
+		.attr('size', '8px')
+		.text(function(d){return d.name});
 }
 //ALSO NEEDED: type, name, description
 function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra){
@@ -203,8 +202,7 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra){
 	var eventEnds = []; //array of ending years
 	var startPix = []; //array of pixel locations for starting years
 	var endPix = []; //array of pixel locations for ending years
-	var allData = []; //all the data that will be used in creating bubbles: names, startpix, description, blahhh
-
+	var allData = []; //all the data that will be used in creating bubbles: names, startpix, description, etc.
 	var pixels = 0;
 	var eventsLength = bubbleAry.length;
 	var i = 0;
@@ -229,50 +227,57 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra){
 	}
 	for(var i =0; i < bubbleAry.length; i++)
 	{
-		obj = {name : bubbleAry[i].name, type: bubbleAry[i].type, start: startPix[i], end: endPix[i]};
-		console.log(obj.type);
-		
+		obj = {name : bubbleAry[i].name, type: bubbleAry[i].type, start: startPix[i], end: endPix[i]};		
 		allData.push(obj);
 	}
 	/*
 		bubble = {name: data.events[i].name, type: data.events[i].type, 
 				startYear:data.events[i].startyear, endYear:data.events[i].endyear};
 	*/
-
 	/*TODO:
-		makesure that the bubbles don't overlap
 		make it interactive
 	*/
-	//takes in allData
 	function checkOverlap(data){
-		
-		var overlap = false;
-		
-		ranges = [];
-		
-		function figureRanges(obj1, obj2){
-			
-		}
-
-		for(var i = 0;i <data.length; i++)
+		var overlaps = new Array(data.length);
+		overlaps.fill(0);
+		var ranges = [];
+		for(var i = 0; i < data.length; i++)
 		{
-			var range = {low:data[i].start, high: data[i].start + (data[i].end-data[i].start)};
-			ranges.push(range);
+			var bubble = {low:data[i].start, high: data[i].end};
+			ranges.push(bubble);
 		}
 		for(var i = 0; i < ranges.length; i++)
 		{
-			
+			for(var j = i; j < ranges.length; j++)
+			{
+				if(i != j)
+				{
+					if(ranges[i].low >= ranges[j].low && ranges[i].low <= ranges[j].high)
+					{
+						overlaps[i]++;
+					}
+					else if(ranges[i].high >= ranges[j].low && ranges[i].high <= ranges[j].high)
+					{
+						overlaps[i]++;
+					}
+				}
+			}
 		}
-
+		return overlaps;
+	}
+	var overlaps = checkOverlap(allData);
+	for(var i = 0; i < allData.length; i++)
+	{
+		allData[i].tier=overlaps[i];
 	}
 	var text = vis.selectAll('text').data(allData).enter().append("svg:text")
-		text.attr('x', function(d){return d.start + ((d.end-d.start)/8)})
-		.attr('y', 296)
+		text.attr('x', function(d){return d.start + ((d.end-d.start)/6)})
+		.attr('y', function(d){return 296 - d.tier * 40})
 		.attr('size', '8px')
 		.text(function(d){return d.name});
 	var rect = vis.selectAll('rect').data(allData).enter().append("svg:rect")
 		rect.attr('x', function(d){return d.start})
-		.attr('y', 300)
+		.attr('y', function(d){return 300 - d.tier * 40})
 		.attr('width', function(d){return d.end-d.start})
 		.attr('height', 20)
 		.attr('rx',15)
@@ -298,37 +303,96 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra){
 						ret = scitechColor;
 						break;
 					case "war": 
-						ret = warColor;				
+						ret = warColor;	
 						break;
 				}
 				return ret;
 			});
 }
-function drawTicks(length, interval, startyear, endyear){
+
+function drawConnections(past, future, events, startEra, endEra, start, end, length ){
+//	var svg = d3.selectAll('#bubblesSvg').append("svg:svg").attr("width", 1000).attr("height", 20);
+	var tAry = timelineArys (startEra, endEra, start, end, length);
+	var lengthAry = tAry[0];
+	var pixelsAry = tAry[1];
+	var yearsAry = tAry[2];
+	var eventYears = [];
+	var eventIds = [];
+	var pairs = []; //array of objects that are the event id and a pixel amount representing the year
+
+	events.forEach(function(elem){
+		eventYears.push(elem.year);
+		eventIds.push(elem.id);
+	});
+	
+	for(var i =0; i<events.length;i++)
+	{
+		var index = yearsAry.indexOf(eventYears[i]);
+		var obj = {id: eventIds[i], pix: pixelsAry[index]};
+		pairs.push(obj);
+	}
+	function getIt(index){
+		var ret = pairs.find(function(elem){
+				return elem.id==future[index].eventId;
+			});
+		return ret;
+	}
+
+	/*
+	console.log("Future:");
+	console.log(future);
+	console.log("Pairs:");
+	console.log(pairs);
+	for(var i = 0;i<future.length;i++)
+	{
+		var spotOne = getIt(i);
+		console.log(spotOne.pix);
+	}
+	for()
+ 	iterate through future
+ 	for each object in future
+ 		find in pairs the object with the same id
+ 		get its pix  
+ 		draw stuff
+
+	iterate through pairs and draw each point
+	*/
+}
+function drawTicks(length, interval, startyear, endyear, startEra, endEra){
 	var ticks = length/interval;
 	var pix = 1000/ticks; //actual pixels that there should be between the ticks
 	var ticksAry = [];
-	var ticksAry2 = [];
+	var intervPix = [];
 	var intervYears = [];
+	var textAry = [];
+	var indices = [];
 	var p = 10;
 	var p2 = 0;
 	var vis = d3.select("div").append("svg:svg").attr('width', 1000).attr("height", 30);
-
+	var tArys = timelineArys(startEra, endEra, startyear, endyear, length);//[lengthAry, pixelsAry, yearsAry]
+	var yearsAry = tArys[2];
+	var pixelsAry = tArys[1];
 	while(p < 1000)
 	{
 		ticksAry.push(p);
 		p += interval;
-	} 
-
-	while(p2 < 1000)
-	{
-		ticksAry2.push(p2);
-		p2 += interval * 5;
-	} 
+	}
 	while(startyear < endyear)
 	{
 		intervYears.push(startyear);
+		var dex = yearsAry.indexOf(startyear);
+		indices.push(dex);
 		startyear += interval;
+	}
+	for(var i = 0; i<indices.length;i++)
+	{
+		var dex = indices[i];
+		intervPix.push(pixelsAry[dex]);
+	}
+	for(var i = 0; i < intervPix.length; i++)
+	{
+		var obj = {pix: intervPix[i], year: intervYears[i]};
+		textAry.push(obj);
 	}
 	var rect = vis.selectAll('rect').data(ticksAry).enter().append("svg:rect");
 		rect.attr('x', function(d){return d})
@@ -336,12 +400,11 @@ function drawTicks(length, interval, startyear, endyear){
 		.attr('height', '15px')
 		.attr('width', '2px')
 		.attr('fill', 'black');
-
-	var text = vis.selectAll('text').data(ticksAry2).enter().append("svg:text");
-		text.attr('x', function(d){return d+7})
+	var text = vis.selectAll('text').data(textAry).enter().append("svg:text");
+		text.attr('x', function(d){return d.pix+8})
 		.attr('y', 30)
 		.attr('size', '9px')
-		.text(function(d){return d/10});
+		.text(function(d){return d.year});
 }
 function timelineArys(startEra, endEra, start, end, length){
 	var lengthAry = []; //array of 0-end
@@ -350,7 +413,6 @@ function timelineArys(startEra, endEra, start, end, length){
 	var yearPix = 1000 / length;
 	var i = 0;
 	var pixels = 0;
-
 	while(i<length)
 	{
 		lengthAry.push(i);
@@ -363,6 +425,10 @@ function timelineArys(startEra, endEra, start, end, length){
 			yearsAry.push(start);
 			start++;
 		}
+		//add the final year
+		var last = yearsAry[yearsAry.length-1];
+		last++;
+		yearsAry.push(last);
 	}
 	else if(startEra=="BCE" && endEra=="CE")
 	{
@@ -376,6 +442,10 @@ function timelineArys(startEra, endEra, start, end, length){
 		{
 			yearsAry.push(i);
 		}
+		//add the final year
+		var last = yearsAry[yearsAry.length-1];
+		last++;
+		yearsAry.push(last);
 	}
 	else if(startEra == "BCE" && endEra == "BCE")
 	{
@@ -384,6 +454,10 @@ function timelineArys(startEra, endEra, start, end, length){
 			yearsAry.push(start);
 			start--;
 		}
+		//add the final year
+		var last = yearsAry[yearsAry.length-1];
+		last--;
+		yearsAry.push(last);
 	}
 	for(var i=0; i < yearsAry.length; i++)
 	{
@@ -392,4 +466,15 @@ function timelineArys(startEra, endEra, start, end, length){
 	}
 	var arys = [lengthAry, pixelsAry, yearsAry];
 	return arys;
+}
+function rangeAry(obj){
+	var start = obj.low;
+	var end = obj.high;
+	ary = [];
+	while(start < end)
+	{
+		ary.push(start);
+		start++
+	}
+	return ary;
 }

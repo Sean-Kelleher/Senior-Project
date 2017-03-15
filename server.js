@@ -42,6 +42,25 @@ function arithmetic(start,end,eraStart,eraEnd){
   }
   return Math.abs(totes);
 }
+//verifies that the input did not start after it ended or end before it began
+function timeVerify(start,end,eraStart,eraEnd){
+  var correct = true;
+  //var ret = "success!"
+  if(eraStart=="CE" && eraEnd=="CE")
+  {
+    if(start > end)
+      correct = false;
+  }
+  else if(eraStart=="BCE" && eraEnd=="BCE")
+  {
+    if(eraStart > eraEnd)
+      correct = false;
+  }
+  else if(eraEnd=="BCE" && eraStart=="CE")
+    correct = false;
+
+  return correct;
+}
 
 
 app.get('/getevents', function(req,res){
@@ -123,17 +142,20 @@ app.post('/timeline', function(req, res) {
 app.post('/trend',function(req,res) {
   if(req.body.start>req.body.end)
   {
-    alert("Invalid: Trend cannot end before it's begun.");
+    res.send("Invalid: Trend cannot end before it's begun.");
   }
-  connection.query('INSERT INTO trend (start,end,name,type) VALUES("'+req.body.start+'","'+req.body.end+'","'+req.body.name+'","'
-    +req.body.type+"';", 
-    function(err,rows,fields){
-      if(err)
-      {
-        throw err;
+  else
+  {
+    connection.query('INSERT INTO trend (start,end,name,type) VALUES("'+req.body.start+'","'+req.body.end+'","'+req.body.name+'","'
+      +req.body.type+"';", 
+      function(err,rows,fields){
+        if(err)
+        {
+          throw err;
+        }
       }
-    }
-  );
+    );
+  }
 });
 
 app.post('/event', function(req, res) {
@@ -146,41 +168,48 @@ app.post('/event', function(req, res) {
   var type = req.body.type;
   var futureid = req.body.future;
   var pastid = req.body.past;
+  var correct = timeVerify(startyear, endyear, startera, endera);
+  if(!correct)
+  {
+    res.send("Invald: Event cannot end before it begins.")
+  }
+  else
+  {
+    connection.query("INSERT INTO events(name,description,startyear,endyear,startera,endera,type) VALUES('"+name+"','"
+      +description+"',"+ startyear + "," +endyear+",'"+startera+"','" +endera+"','" +type+"');",
+      function(err, rows, fields) {      
+        if (err) 
+        {
+          throw err;
+        }
+        var eventid=rows.insertId;
 
-  connection.query("INSERT INTO events(name,description,startyear,endyear,startera,endera,type) VALUES('"+name+"','"
-    +description+"',"+ startyear + "," +endyear+",'"+startera+"','" +endera+"','" +type+"');",
-    function(err, rows, fields) {      
-      if (err) 
-      {
-        throw err;
-      }
-      var eventid=rows.insertId;
-
-      if(futureid!='')
-      {
-        connection.query("INSERT INTO future_connections(event_id,fut_id) VALUES('"+eventid+"','"+futureid+"');",
-          function(err, rows, fields) {
-             if (err)
-             {
-               throw err;
+        if(futureid!='')
+        {
+          connection.query("INSERT INTO future_connections(event_id,fut_id) VALUES('"+eventid+"','"+futureid+"');",
+            function(err, rows, fields) {
+               if (err)
+               {
+                 throw err;
+               }
              }
-           }
-        );
-      }    
-      if(pastid!='')
-      {
-        connection.query("INSERT INTO past_connections(event_id,past_id) VALUES('"+eventid+"','"+pastid+"');",
-          function(err, rows, fields) {
-             if (err)
-             {
-               throw err;
+          );
+        }    
+        if(pastid!='')
+        {
+          connection.query("INSERT INTO past_connections(event_id,past_id) VALUES('"+eventid+"','"+pastid+"');",
+            function(err, rows, fields) {
+               if (err)
+               {
+                 throw err;
+               }
              }
-           }
-        );
+          );
+        }
       }
-    }
-  );
-  res.send("success!");
+    );
+    res.send("success!");
+  }
 });
 
 app.listen(3000, function () {
