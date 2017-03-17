@@ -62,18 +62,6 @@ function timeVerify(start,end,eraStart,eraEnd){
   return correct;
 }
 
-
-app.get('/getevents', function(req,res){
-  connection.query('SELECT name, id, type FROM events;',
-    function(err, rows, fields) {
-      if (err) 
-      {
-        throw err;
-      }
-      res.send(JSON.stringify(rows));        
-    });
-});
-
 app.get('/gettrends',function(req,res){
   connection.query('SELECT startyear, endyear, type, name FROM trend;',
     function(err1, rows1, fields1) {
@@ -97,16 +85,22 @@ app.get('/gettimeline', function(req, res){
     )
 });
 app.get('/getbubbles',function(req,res){
-  connection.query('SELECT name, type, startyear, endyear, startera, endera FROM events;',
+  connection.query('SELECT name, type, startyear, endyear, startera, endera, description, id FROM events;',
     function(err1, rows1, fields1) {
       connection.query('SELECT length, intervals, start, end, era_start, era_end FROM timeline;',
         function(err2, rows2, fields2) {
-          var obj = {'events': rows1, 'timeline': rows2};
-          res.send(JSON.stringify(obj));
+          connection.query('SELECT event_id, past_id FROM past_connections;',
+            function(err3, rows3, fields3) {
+              connection.query('SELECT event_id, fut_id FROM future_connections;',
+                function(err4, rows4, fields4) {
+                    var obj = {'events': rows1, 'timeline': rows2, 'past': rows3, 'future': rows4};
+                    res.send(JSON.stringify(obj));                          
+                });
+            }); 
         });
     });
 });
-app.get('/getconnections',function(req,res){
+/*app.get('/getconnections',function(req,res){
   connection.query('SELECT event_id, past_id FROM past_connections;',
     function(err1, rows1, fields1) {
       connection.query('SELECT event_id, fut_id FROM future_connections;',
@@ -121,7 +115,7 @@ app.get('/getconnections',function(req,res){
             });
         });
     });  
-});
+});*/
 //app.get('/getdescription')
 
 
