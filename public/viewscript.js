@@ -116,7 +116,6 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 	pixelsAry = tAry[1];
 	yearsAry = tAry[2];
 
-
 	for(var i = 0; i< eventsLength; i++)
 	{
 		eventStarts.push(bubbleAry[i].startYear);
@@ -177,7 +176,8 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 		var corresponding = allData.find(function(elem){
 			return elem.name == evIdPairs[i].evt;
 		})
-		evIdPairs[i].pix = corresponding.start;
+		evIdPairs[i].startPix = corresponding.start;
+		evIdPairs[i].endPix = corresponding.end;
 		evIdPairs[i].tier = corresponding.tier;
 	}
 	/*
@@ -193,16 +193,15 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 			var corr1 = evIdPairs.find(function(elem){
 				return elem.id == pasts[i].eventid;
 			})
-		
 			var corr2 = evIdPairs.find(function(elem){
 				return elem.id == pasts[i].pastid;
 			})
-			
-			var obj = {x1: corr1.pix, y1: corr1.tier, x2: corr2.pix, y2: corr2.tier};
+			var start1 = (corr1.endPix - corr1.startPix)/5 + corr1.startPix 
+			var start2 = (corr2.endPix - corr2.startPix)/5 + corr2.startPix
+			var obj = {x1: start1, y1: corr1.tier, x2: start2, y2: corr2.tier, f: 'red'};
 			connData.push(obj);
 		}
 	}
-
 	for(var i = 0; i < futures.length; i++)
 	{
 		if(futures[i].eventid != "" && futures[i].futid != "")
@@ -214,12 +213,13 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 			var corr2 = evIdPairs.find(function(elem){
 				return elem.id == futures[i].futid;
 			})
-			
-			var obj = {x1: corr1.pix, y1: corr1.tier, x2: corr2.pix, y2: corr2.tier};
+			var start1 = (corr1.endPix - corr1.startPix)/5 + corr1.startPix 
+			var start2 = (corr2.endPix - corr2.startPix)/5 + corr2.startPix
+			var obj = {x1: start1, y1: corr1.tier, x2: start2, y2: corr2.tier, f: 'blue'};
 			connData.push(obj);
 		}
 	}
-
+	console.log(evIdPairs);
 	var text = vis.selectAll('text').data(allData).enter().append("svg:text")
 		text.attr('x', function(d){return d.start + ((d.end-d.start)/6)})
 		.attr('y', function(d){return 296 - d.tier * 40})
@@ -232,7 +232,7 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 		.attr('height', 20)
 		.attr('rx',15)
 		.attr('fill',function(d){
-				var ret = ""
+				var ret = "";
 				switch(d.type){
 					case "other" : 
 						ret = otherColor;
@@ -264,9 +264,8 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 		.attr('y1', function(d){return 310 - d.y1 * 40;})
 		.attr('x2', function(d){return d.x2;})
 		.attr('y2', function(d){return 310 - d.y2 * 40;})
-		.attr('stroke', 'black')
+		.attr('stroke', function(d){return d.f;})
 		.attr('stroke-width', '1');
-		
 }
 function drawTrends(trends, length, start, interval, end, startEra, endEra)
 {
@@ -282,7 +281,6 @@ function drawTrends(trends, length, start, interval, end, startEra, endEra)
 	var pixels = 0;
 	var trendsLength = trends.length;
 	var lengthAry = []; //array of 0-end
-	var i = 0;
 	var tAry = timelineArys (startEra, endEra, start, end, length);
 	lengthAry = tAry[0];
 	pixelsAry = tAry[1];
