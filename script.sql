@@ -5,8 +5,10 @@ CREATE TABLE events(
 	id INT PRIMARY KEY AUTO_INCREMENT,
 	name VARCHAR(255) NOT NULL,
 	description VARCHAR(255) DEFAULT " ",
-	year INT NOT NULL DEFAULT "0",
-	era ENUM('BCE','CE') NOT NULL,
+	startyear INT NOT NULL DEFAULT "0",
+	endyear INT NOT NULL DEFAULT "0",
+	startera ENUM('BCE','CE') NOT NULL,
+	endera ENUM('BCE','CE') NOT NULL,
 	type ENUM('political', 'natural', 'war', 'sci-tech', 'economic', 'cultural', 'other') NOT NULL
 );
 CREATE TABLE past_connections(
@@ -28,27 +30,15 @@ CREATE TABLE timeline(
 	title VARCHAR(255) NOT NULL,
 	start INT NOT NULL,
 	end INT NOT NULL,
+	era_start ENUM('BCE','CE') NOT NULL,
+	era_end ENUM('BCE','CE') NOT NULL,
+	length INT,
 	intervals INT DEFAULT 1
 );
 CREATE TABLE trend(
 	trend_id INT PRIMARY KEY AUTO_INCREMENT,
 	type ENUM('political', 'natural', 'war', 'sci-tech', 'economic', 'cultural', 'other') NOT NULL,
 	start INT NOT NULL,
-	end INT NOT NULL
+	end INT NOT NULL,
+	name VARCHAR(255) NOT NULL
 );
-
-DESC events;
-DESC past_connections;
-DESC future_connections;
-/*Necessary stuff:
-Name
-description
-pst connections
-fut connections
-date 
-
-table for connections:
-
-Eventid       ids of related past events      ids of related future events
-
-*/

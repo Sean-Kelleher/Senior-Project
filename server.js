@@ -100,24 +100,6 @@ app.get('/getbubbles',function(req,res){
         });
     });
 });
-/*app.get('/getconnections',function(req,res){
-  connection.query('SELECT event_id, past_id FROM past_connections;',
-    function(err1, rows1, fields1) {
-      connection.query('SELECT event_id, fut_id FROM future_connections;',
-        function(err2, rows2, fields2) {
-          connection.query('SELECT id, startyear, startera FROM events;',
-            function(err3, rows3, fields3){
-              connection.query('SELECT length, start, end, era_start, era_end FROM timeline;',
-                function(err4, rows4, fields4){
-                  var obj = {'past': rows1, 'future': rows2, 'events' : rows3, 'timeline' : rows4};
-                  res.send(JSON.stringify(obj));
-                });
-            });
-        });
-    });  
-});*/
-//app.get('/getdescription')
-
 
 app.post('/timeline', function(req, res) {
   var total = arithmetic(req.body.start, req.body.end,req.body.era1,req.body.era2);
