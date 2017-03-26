@@ -17,85 +17,93 @@ var otherLight = "#979797";
 var naturalLight = '#88ff66';
 var economicLight = "#dedeff";
 */
-d3.json('gettrends',function(data){
-	var trendAry = []; //array of trends
-	if(data!=null)
-	{
-		var length = data.timeline[0].length;
-		var start = data.timeline[0].start;
-		var interval = data.timeline[0].intervals;
-		var startEra = data.timeline[0].era_start;
-		var endEra = data.timeline[0].era_end;
-		var end = data.timeline[0].end;
-		for(var i=0;i<data.trends.length;i++)
-		{			
-			var tr = {start:data.trends[i].startyear, end:data.trends[i].endyear, type:data.trends[i].type, name:data.trends[i].name};
-			trendAry.push(tr);
+function init(){
+	trends();
+}
+function trends(){
+	d3.json('gettrends',function(data){
+		var trendAry = []; //array of trends
+		if(data!=null)
+		{
+			var length = data.timeline[0].length;
+			var start = data.timeline[0].start;
+			var interval = data.timeline[0].intervals;
+			var startEra = data.timeline[0].era_start;
+			var endEra = data.timeline[0].era_end;
+			var end = data.timeline[0].end;
+			for(var i=0;i<data.trends.length;i++)
+			{			
+				var tr = {start:data.trends[i].startyear, end:data.trends[i].endyear, type:data.trends[i].type, name:data.trends[i].name};
+				trendAry.push(tr);
+			}
 		}
-	}
-	drawTrends(trendAry, length, start, interval, end, startEra, endEra);
-})
-
-d3.json('getbubbles', function(data){
-	var bubbleAry = []; //array of bubbles
-	if(data!=null)
-	{
-		var length = data.timeline[0].length;
-		var start = data.timeline[0].start;
-		var interval = data.timeline[0].intervals;
-		var startEra = data.timeline[0].era_start;
-		var endEra = data.timeline[0].era_end;
-		var end = data.timeline[0].end;
-		var pasts = [];
-		var futures = [];
-		var evIdPairs = [];
+		drawTrends(trendAry, length, start, interval, end, startEra, endEra);
+	})
+	bubbles();
+}
+function bubbles(){
+	d3.json('getbubbles', function(data){
+		var bubbleAry = []; //array of bubbles
+		if(data!=null)
+		{
+			var length = data.timeline[0].length;
+			var start = data.timeline[0].start;
+			var interval = data.timeline[0].intervals;
+			var startEra = data.timeline[0].era_start;
+			var endEra = data.timeline[0].era_end;
+			var end = data.timeline[0].end;
+			var pasts = [];
+			var futures = [];
+			var evIdPairs = [];
+		
+			for(var i=0;i<data.events.length;i++)
+			{		
+				var bubble = {name: data.events[i].name, type: data.events[i].type, 
+					startYear:data.events[i].startyear, endYear:data.events[i].endyear, 
+					id:data.events[i].id, desc:data.events[i].description};
+				bubbleAry.push(bubble);
+				var evId = {evt: data.events[i].name, id: data.events[i].id, 
+					startYear:data.events[i].startyear, endYear:data.events[i].endyear};
+				evIdPairs.push(evId);
+			}	
+			for(var i = 0; i < data.past.length;i++)
+			{
+				var obj = {eventid: data.past[i].event_id, pastid: data.past[i].past_id};
+				pasts.push(obj);
+			}
+			for(var i = 0; i < data.future.length;i++)
+			{
+				var obj = {eventid: data.future[i].event_id, futid: data.future[i].fut_id};
+				futures.push(obj);
+			}
+		}
+		drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, pasts, futures, evIdPairs);
+	});
 	
-		for(var i=0;i<data.events.length;i++)
-		{		
-			var bubble = {name: data.events[i].name, type: data.events[i].type, 
-				startYear:data.events[i].startyear, endYear:data.events[i].endyear, id:data.events[i].id};
-			bubbleAry.push(bubble);
-			var evId = {evt: data.events[i].name, id: data.events[i].id, 
-				startYear:data.events[i].startyear, endYear:data.events[i].endyear};
-			evIdPairs.push(evId);
-		}	
-		for(var i = 0; i < data.past.length;i++)
+}
+function timeline(){
+	d3.json('gettimeline', function(data){ 
+		var interval = 0;
+		var length = 0;
+		var startyear = 0;
+		var endyear = 0;
+		var eraStart = ""; //BCE or CE
+		var endEra = ""; //BCE or CE
+		var lineTitle = "";
+
+		if(data!=null)
 		{
-			var obj = {eventid: data.past[i].event_id, pastid: data.past[i].past_id};
-			pasts.push(obj);
+			startyear = data[0].start;
+			endyear = data[0].end;
+			interval = data[0].intervals;
+			length = data[0].length;
+			eraStart = data[0].era_start;
+			eraEnd = data[0].era_end;
+			lineTitle = data[0].title;
 		}
-		for(var i = 0; i < data.future.length;i++)
-		{
-			var obj = {eventid: data.future[i].event_id, futid: data.future[i].fut_id};
-			futures.push(obj);
-		}
-
-	}
-	drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, pasts, futures, evIdPairs);
-
-});
-d3.json('gettimeline', function(data){ 
-	var interval = 0;
-	var length = 0;
-	var startyear = 0;
-	var endyear = 0;
-	var eraStart = ""; //BCE or CE
-	var endEra = ""; //BCE or CE
-	var lineTitle = "";
-
-	if(data!=null)
-	{
-		startyear = data[0].start;
-		endyear = data[0].end;
-		interval = data[0].intervals;
-		length = data[0].length;
-		eraStart = data[0].era_start;
-		eraEnd = data[0].era_end;
-		lineTitle = data[0].title;
-	}
-	drawTicks(length, interval, startyear, endyear, eraStart, eraEnd);
-});
-
+		drawTicks(length, interval, startyear, endyear, eraStart, eraEnd);
+	});
+}
 //ALSO NEEDED: type, name, description
 function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, pasts, futures, evIdPairs){
 	var vis = d3.select("div").append("svg:svg").attr('width', 1000).attr("height", 400);
@@ -132,12 +140,9 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 	}
 	for(var i =0; i < bubbleAry.length; i++)
 	{
-		obj = {name : bubbleAry[i].name, type: bubbleAry[i].type, start: startPix[i], end: endPix[i]};		
+		obj = {name : bubbleAry[i].name, type: bubbleAry[i].type, start: startPix[i], end: endPix[i], desc:bubbleAry[i].desc};
 		allData.push(obj);
 	}
-	/*TODO:
-		make it interactive
-	*/
 	function checkOverlap(data){
 		var overlaps = new Array(data.length);
 		overlaps.fill(0);
@@ -208,8 +213,7 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 		{
 			var corr1 = evIdPairs.find(function(elem){
 				return elem.id == futures[i].eventid;
-			})
-		
+			})		
 			var corr2 = evIdPairs.find(function(elem){
 				return elem.id == futures[i].futid;
 			})
@@ -219,7 +223,6 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 			connData.push(obj);
 		}
 	}
-	console.log(evIdPairs);
 	var text = vis.selectAll('text').data(allData).enter().append("svg:text")
 		text.attr('x', function(d){return d.start + ((d.end-d.start)/6)})
 		.attr('y', function(d){return 296 - d.tier * 40})
@@ -257,8 +260,20 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 						break;
 				}
 				return ret;
+			})
+		.attr('style','cursor:pointer;')
+		.on('mouseover', function(d){
+			var tip = d3.tip()
+				.attr('class', 'd3-tip')
+				.offset([-10,0])
+				.html(function(d){
+				return '<div style="border:1px dotted black; text-align: center; float: center; width:80%">'+d.name+'</div>'+
+				'<div style="border:1px dotted black; text-align: center; width:80%">'+d.desc+'</div>'
 			});
-		console.log(connData);
+			return tip;
+		})
+		.on('click', function(d){infoWindow(d)});
+	
 	var line = vis.selectAll('line').data(connData).enter().append("svg:line")
 		line.attr('x1', function(d){return d.x1;})
 		.attr('y1', function(d){return 310 - d.y1 * 40;})
@@ -266,6 +281,16 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 		.attr('y2', function(d){return 310 - d.y2 * 40;})
 		.attr('stroke', function(d){return d.f;})
 		.attr('stroke-width', '1');
+	timeline();
+}
+function infoWindow(data){
+	var title = data.name;
+	var description = data.desc;
+	var win = window.open("","","scrollbars=yes,location=no,height=300,width=250,toolbar=no,left=200,top=200,status=no,location=no,titlebar=no");
+	win.document.write(
+		'<div style="border:1px dotted black; text-align: center; float: center; width:80%">'+title+'</div>'+
+		'<div style="border:1px dotted black; text-align: center; width:80%">'+description+'</div>'
+		);
 }
 function drawTrends(trends, length, start, interval, end, startEra, endEra)
 {
@@ -349,7 +374,6 @@ function drawTrends(trends, length, start, interval, end, startEra, endEra)
 		.attr('size', '8px')
 		.text(function(d){return d.name});
 }
-
 function drawTicks(length, interval, startyear, endyear, startEra, endEra){
 	var ticks = length/interval;
 	var pix = 1000/ticks; //actual pixels that there should be between the ticks
@@ -364,11 +388,7 @@ function drawTicks(length, interval, startyear, endyear, startEra, endEra){
 	var tArys = timelineArys(startEra, endEra, startyear, endyear, length);//[lengthAry, pixelsAry, yearsAry]
 	var yearsAry = tArys[2];
 	var pixelsAry = tArys[1];
-	while(p < 1000)
-	{
-		ticksAry.push(p);
-		p += interval;
-	}
+
 	while(startyear < endyear)
 	{
 		intervYears.push(startyear);
@@ -384,6 +404,7 @@ function drawTicks(length, interval, startyear, endyear, startEra, endEra){
 	for(var i = 0; i < intervPix.length; i++)
 	{
 		var obj = {pix: intervPix[i], year: intervYears[i]};
+		ticksAry.push(intervPix[i]);
 		textAry.push(obj);
 	}
 	var rect = vis.selectAll('rect').data(ticksAry).enter().append("svg:rect");
@@ -393,7 +414,7 @@ function drawTicks(length, interval, startyear, endyear, startEra, endEra){
 		.attr('width', '2px')
 		.attr('fill', 'black');
 	var text = vis.selectAll('text').data(textAry).enter().append("svg:text");
-		text.attr('x', function(d){return d.pix+8})
+		text.attr('x', function(d){return d.pix})
 		.attr('y', 30)
 		.attr('size', '9px')
 		.text(function(d){return d.year});
@@ -470,3 +491,4 @@ function rangeAry(obj){
 	}
 	return ary;
 }
+init();
