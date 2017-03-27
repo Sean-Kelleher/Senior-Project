@@ -45,22 +45,42 @@ function arithmetic(start,end,eraStart,eraEnd){
 //verifies that the input did not start after it ended or end before it began
 function timeVerify(start,end,eraStart,eraEnd){
   var correct = true;
-  //var ret = "success!"
+  
   if(eraStart=="CE" && eraEnd=="CE")
   {
-    if(start > end)
+    if(end < start)
+    {
       correct = false;
+    }
   }
   else if(eraStart=="BCE" && eraEnd=="BCE")
   {
-    if(eraStart > eraEnd)
+    if(end < start)
       correct = false;
   }
   else if(eraEnd=="BCE" && eraStart=="CE")
+  {
     correct = false;
-
+  }
   return correct;
 }
+
+function escapeQuote(str){
+  rep = "\\";
+  var ret = str.replace("'",rep + "'");
+  return ret;
+}
+app.get('/getevents', function(req,res){
+  connection.query('SELECT name, id FROM events;',
+    function(err, rows, fields) {
+      if (err) 
+      {
+        throw err;
+      }
+      res.send(JSON.stringify(rows));        
+    }
+  )
+});
 
 app.get('/gettrends',function(req,res){
   connection.query('SELECT startyear, endyear, type, name FROM trend;',
@@ -103,7 +123,8 @@ app.get('/getbubbles',function(req,res){
 
 app.post('/timeline', function(req, res) {
   var total = arithmetic(req.body.start, req.body.end,req.body.era1,req.body.era2);
-  connection.query('INSERT INTO  timeline(title,era_start,era_end,intervals,start,end,length) VALUES ("'+ req.body.title +'","'+
+  var title = escapeQuote(req.body.title);
+  connection.query('INSERT INTO  timeline(title,era_start,era_end,intervals,start,end,length) VALUES ("'+ title +'","'+
     req.body.era1+'","' + req.body.era2 +'","'+req.body.interval+'","'+req.body.start+'","'+req.body.end+'","'+total+'");',
     function(err, rows, fields) {
       if (err) 
@@ -115,15 +136,16 @@ app.post('/timeline', function(req, res) {
   res.send("success!");
 });
 
-app.post('/trend',function(req,res) {
+app.get('/trend',function(req,res) {  
   if(req.body.start>req.body.end)
   {
     res.send("Invalid: Trend cannot end before it's begun.");
   }
   else
   {
-    connection.query('INSERT INTO trend (start,end,name,type) VALUES("'+req.body.start+'","'+req.body.end+'","'+req.body.name+'","'
-      +req.body.type+"';", 
+    var name = escapeQuote(req.body.name);
+    connection.query('INSERT INTO trend (start,end,name,type) VALUES("'+req.body.start+'","'+req.body.end+'","'+name+'","'
+      +req.body.eType.toLowerCase()+"';", 
       function(err,rows,fields){
         if(err)
         {
@@ -136,11 +158,11 @@ app.post('/trend',function(req,res) {
 
 app.post('/event', function(req, res) {
   var startyear=req.body.startyear;
-  var description = req.body.description;
+  var description = escapeQuote(req.body.description);
   var endyear = req.body.endyear;
   var startera = req.body.startera;
   var endera = req.body.endera;
-  var name = req.body.name;
+  var name = escapeQuote(req.body.name);
   var type = req.body.type;
   var futureid = req.body.future;
   var pastid = req.body.past;
