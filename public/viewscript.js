@@ -7,16 +7,14 @@ var politicalColor = "#669999";
 var economicColor = "#ccccff";
 var culturalColor = "#ffcc99";
 
-/*
-Possibly: Fill the trends with these
-var culturalLight = "#ffeeaa";
-var politicalColor = "#88bbbb";
-var scitechLight = "#77eeff";
-var warLight = "#ff8844";
-var otherLight = "#979797";
-var naturalLight = '#88ff66';
-var economicLight = "#dedeff";
-*/
+var culturalColorLight = "#ffeeaa";
+var politicalColorLight = "#88bbbb";
+var scitechColorLight = "#77eeff";
+var warColorLight = "#ff8844";
+var otherColorLight = "#979797";
+var naturalColorLight = '#88ff66';
+var economicColorLight = "#dedeff";
+
 function init(){
 	trends();
 }
@@ -107,6 +105,7 @@ function timeline(){
 //ALSO NEEDED: type, name, description
 function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, pasts, futures, evIdPairs){
 	var vis = d3.select("div").append("svg:svg").attr('width', 1000).attr("height", 400);
+	var tipSpace = d3.select("p");
 	var yearPix = 1000/length; //amount of pixels per year
 	var lengthAry = []; //array of 0-end
 	var yearsAry = []; //an array that contains all the years
@@ -185,12 +184,6 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 		evIdPairs[i].endPix = corresponding.end;
 		evIdPairs[i].tier = corresponding.tier;
 	}
-	/*
-	iterate through pasts
-	for each of those
-	find corresponding in evIdPairs
-	set x as start from corresponding
-	*/
 	for(var i = 0; i < pasts.length; i++)
 	{
 		if(pasts[i].eventid != "" && pasts[i].pastid != "")
@@ -228,12 +221,14 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 		.attr('y', function(d){return 296 - d.tier * 40})
 		.attr('size', '8px')
 		.text(function(d){return d.name});
-	var rect = vis.selectAll('rect').data(allData).enter().append("svg:rect")
-		rect.attr('x', function(d){return d.start})
+		
+	var bubble = vis.selectAll('rect').data(allData).enter().append('svg:rect');
+		bubble.attr('x', function(d){return d.start})
 		.attr('y', function(d){return 300 - d.tier * 40})
 		.attr('width', function(d){return d.end-d.start})
 		.attr('height', 20)
 		.attr('rx',15)
+		.attr('id',function(d){ return d.desc})
 		.attr('fill',function(d){
 				var ret = "";
 				switch(d.type){
@@ -262,18 +257,46 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 				return ret;
 			})
 		.attr('style','cursor:pointer;')
-		.on('mouseover', function(d){
-			var tip = d3.tip()
-				.attr('class', 'd3-tip')
-				.offset([-10,0])
-				.html(function(d){
-				return '<div style="border:1px dotted black; text-align: center; float: center; width:80%">'+d.name+'</div>'+
-				'<div style="border:1px dotted black; text-align: center; width:80%">'+d.desc+'</div>'
-			});
-			return tip;
-		})
-		.on('click', function(d){infoWindow(d)});
+		.on('click', function(d){infoWindow(d)})
+		.on('mouseenter',bubbleEnter)
+		.on('mouseout',bubbleExit);
 	
+	function bubbleEnter(){
+		var current = d3.select(this);
+		var typeColor = current.attr('fill');
+		var lightColor = "";
+		switch(typeColor){
+			case "#ff6600": //war
+				lightColor = "#ff8844";
+				break;
+			case "#898989": //other
+				lightColor = "#979797";
+				break;
+			case "#66ff33": //natural
+				lightColor = "#88ff66";
+				break;
+			case "#33ccff": //scitech
+				lightColor = "#77eeff";
+				break;
+			case "#669999": //political
+				lightColor = "#88bbbb";
+				break;
+			case "#ccccff": //economic
+				lightColor = "#dedeff";
+				break;
+			case "#ffcc99": //cultural
+				lightColor = "#ffeeaa";
+				break;
+		}
+		var str = current.attr('id');
+		var tip = tipSpace.append('p');
+		tip.text(str)
+		.attr('style','padding: 3px; border:3px solid '+typeColor+'; background-color: '+ lightColor+"; border-radius: 4px;");
+	}
+	function bubbleExit(){
+		tipSpace.selectAll('p').remove();
+	}
+
 	var line = vis.selectAll('line').data(connData).enter().append("svg:line")
 		line.attr('x1', function(d){return d.x1;})
 		.attr('y1', function(d){return 310 - d.y1 * 40;})
@@ -282,7 +305,9 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 		.attr('stroke', function(d){return d.f;})
 		.attr('stroke-width', '1');
 	timeline();
+
 }
+
 function infoWindow(data){
 	var title = data.name;
 	var description = data.desc;
@@ -327,7 +352,6 @@ function drawTrends(trends, length, start, interval, end, startEra, endEra)
 	for(var i = 0; i < trendsLength; i++)
 	{
 		var obj = {start: startPix[i] + 10, end: endPix[i] + 10, type: trends[i].type, name: trends[i].name};
-		console.log(obj.start);
 		allData.push(obj);
 	}
 	
@@ -336,7 +360,6 @@ function drawTrends(trends, length, start, interval, end, startEra, endEra)
 			var x1 = d.start;
 			var x2 = d.end;
 			var ret = x1 + ",25 " + x1 + ",15 " + x2 + ",15 " + x2 + ",25";
-			console.log(ret);
 			return ret;
 		})
 		.attr('stroke',function(d){
@@ -373,6 +396,8 @@ function drawTrends(trends, length, start, interval, end, startEra, endEra)
 		.attr('y', '12')
 		.attr('size', '8px')
 		.text(function(d){return d.name});
+
+
 }
 function drawTicks(length, interval, startyear, endyear, startEra, endEra){
 	var ticks = length/interval;
