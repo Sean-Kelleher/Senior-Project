@@ -225,7 +225,14 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 	var bubble = vis.selectAll('rect').data(allData).enter().append('svg:rect');
 		bubble.attr('x', function(d){return d.start})
 		.attr('y', function(d){return 300 - d.tier * 40})
-		.attr('width', function(d){return d.end-d.start})
+		.attr('width', function(d){
+			var w = 10;
+			if(d.end != d.start)
+			{
+				w = d.end-d.start
+			}
+			return w;
+		})
 		.attr('height', 20)
 		.attr('rx',15)
 		.attr('id',function(d){ return d.desc})
@@ -412,15 +419,46 @@ function drawTicks(length, interval, startyear, endyear, startEra, endEra){
 	var vis = d3.select("div").append("svg:svg").attr('width', 1000).attr("height", 30);
 	var tArys = timelineArys(startEra, endEra, startyear, endyear, length);//[lengthAry, pixelsAry, yearsAry]
 	var yearsAry = tArys[2];
+	console.log(yearsAry);
 	var pixelsAry = tArys[1];
-
-	while(startyear < endyear)
+	if(startEra == "CE" && endEra == "CE")
 	{
-		intervYears.push(startyear);
-		var dex = yearsAry.indexOf(startyear);
-		indices.push(dex);
-		startyear += interval;
+		while(startyear < endyear)
+		{
+			intervYears.push(startyear);
+			var dex = yearsAry.indexOf(startyear);
+			indices.push(dex);
+			startyear += interval;
+		}
 	}
+	if(startEra == "BCE" && endEra == "BCE")
+	{
+		while(startyear > endyear)
+		{
+			intervYears.push(startyear);
+			var dex = yearsAry.indexOf(startyear);
+			indices.push(dex);
+			startyear -= interval;
+		}
+	}
+	else if(startEra=="BCE" && endEra=="CE")
+	{
+		while(startyear > 0)
+		{
+			intervYears.push(startyear);
+			var dex = yearsAry.indexOf(startyear);
+			indices.push(dex);
+			startyear -= interval;
+		}
+		while(startyear < endyear)
+		{
+			intervYears.push(startyear);
+			var dex = yearsAry.indexOf(startyear);
+			indices.push(dex);
+			startyear += interval;
+		}
+	}
+	console.log(indices);
 	for(var i = 0; i<indices.length;i++)
 	{
 		var dex = indices[i];
