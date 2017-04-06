@@ -139,7 +139,8 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 	}
 	for(var i =0; i < bubbleAry.length; i++)
 	{
-		obj = {name : bubbleAry[i].name, type: bubbleAry[i].type, start: startPix[i], end: endPix[i], desc:bubbleAry[i].desc};
+		obj = {name : bubbleAry[i].name, type: bubbleAry[i].type, start: startPix[i], end: endPix[i], 
+			desc:bubbleAry[i].desc, startyear:bubbleAry[i].startYear, endyear:bubbleAry[i].endYear};
 		allData.push(obj);
 	}
 	function checkOverlap(data){
@@ -196,7 +197,7 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 			})
 			var start1 = (corr1.endPix - corr1.startPix)/5 + corr1.startPix 
 			var start2 = (corr2.endPix - corr2.startPix)/5 + corr2.startPix
-			var obj = {x1: start1, y1: corr1.tier, x2: start2, y2: corr2.tier, f: 'red'};
+			var obj = {x1: start1, y1: corr1.tier, x2: start2, y2: corr2.tier};
 			connData.push(obj);
 		}
 	}
@@ -212,10 +213,17 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 			})
 			var start1 = (corr1.endPix - corr1.startPix)/5 + corr1.startPix 
 			var start2 = (corr2.endPix - corr2.startPix)/5 + corr2.startPix
-			var obj = {x1: start1, y1: corr1.tier, x2: start2, y2: corr2.tier, f: 'blue'};
+			var obj = {x1: start1, y1: corr1.tier, x2: start2, y2: corr2.tier};
 			connData.push(obj);
 		}
 	}
+	var line = vis.selectAll('line').data(connData).enter().append("svg:line")
+		line.attr('x1', function(d){return d.x1;})
+		.attr('y1', function(d){return 310 - d.y1 * 40;})
+		.attr('x2', function(d){return d.x2;})
+		.attr('y2', function(d){return 310 - d.y2 * 40;})
+		.attr('stroke', 'black')
+		.attr('stroke-width', '1');
 	var text = vis.selectAll('text').data(allData).enter().append("svg:text")
 		text.attr('x', function(d){return d.start + ((d.end-d.start)/6)})
 		.attr('y', function(d){return 296 - d.tier * 40})
@@ -236,6 +244,14 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 		.attr('height', 20)
 		.attr('rx',15)
 		.attr('id',function(d){ return d.desc})
+		.attr('class',function(d){
+			var ret = d.name + ", ";
+			if(d.startyear == d.endyear)
+				ret += d.startyear
+			else
+				ret += d.startyear + " - " + d.endyear;
+			return ret;
+		})
 		.attr('fill',function(d){
 				var ret = "";
 				switch(d.type){
@@ -295,22 +311,20 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 				lightColor = "#ffeeaa";
 				break;
 		}
-		var str = current.attr('id');
+		var desc = current.attr('id');
+		var titleInfo = current.attr('class');
+		var title = tipSpace.append('p');
+		title.text(titleInfo)
+		.attr('style',' font-weight: bold; padding: 3px; border:3px solid '+typeColor+'; background-color: '+ lightColor+"; border-radius: 4px;");
 		var tip = tipSpace.append('p');
-		tip.text(str)
+		tip.text(desc)
 		.attr('style','padding: 3px; border:3px solid '+typeColor+'; background-color: '+ lightColor+"; border-radius: 4px;");
 	}
 	function bubbleExit(){
 		tipSpace.selectAll('p').remove();
 	}
 
-	var line = vis.selectAll('line').data(connData).enter().append("svg:line")
-		line.attr('x1', function(d){return d.x1;})
-		.attr('y1', function(d){return 310 - d.y1 * 40;})
-		.attr('x2', function(d){return d.x2;})
-		.attr('y2', function(d){return 310 - d.y2 * 40;})
-		.attr('stroke', function(d){return d.f;})
-		.attr('stroke-width', '1');
+	
 	timeline();
 
 }
@@ -397,14 +411,43 @@ function drawTrends(trends, length, start, interval, end, startEra, endEra)
 				return stroke;
 			})
 			.attr('stroke-width', '2')
-			.attr('fill', 'none'); //possible: Replace the fill with the lighter colors commented above
+			.attr('fill', function(d){
+				var f = "";
+				switch(d.type){
+					case "other" : 
+						f = otherColorLight;
+						break;
+					case "natural" : 
+						f = naturalColorLight;
+						break;
+					case "political" : 
+						f = politicalColorLight;
+						break;
+					case "economic" : 
+						f = economicColorLight;
+						break;
+					case "cultural" : 
+						f = culturalColorLight;
+						break;
+					case "science/technology" : 
+						f = scitechColorLight;
+						break;
+					case "war": 
+						f = warColorLight;	
+						break;
+				}
+				return f;
+			});
+			/*
+			//	TODO: something similar to the above with the appending of a sidebar upon bubble mouseover
+			.on('mouseenter',movementEnter)
+			.on('mouseout',movementExit)
+			*/
 	var text = vis.selectAll('text').data(allData).enter().append("svg:text")
 		text.attr('x', function(d){return d.start})
 		.attr('y', '12')
 		.attr('size', '8px')
 		.text(function(d){return d.name});
-
-
 }
 function drawTicks(length, interval, startyear, endyear, startEra, endEra){
 	var ticks = length/interval;
@@ -419,7 +462,6 @@ function drawTicks(length, interval, startyear, endyear, startEra, endEra){
 	var vis = d3.select("div").append("svg:svg").attr('width', 1000).attr("height", 30);
 	var tArys = timelineArys(startEra, endEra, startyear, endyear, length);//[lengthAry, pixelsAry, yearsAry]
 	var yearsAry = tArys[2];
-	console.log(yearsAry);
 	var pixelsAry = tArys[1];
 	if(startEra == "CE" && endEra == "CE")
 	{
@@ -458,7 +500,6 @@ function drawTicks(length, interval, startyear, endyear, startEra, endEra){
 			startyear += interval;
 		}
 	}
-	console.log(indices);
 	for(var i = 0; i<indices.length;i++)
 	{
 		var dex = indices[i];

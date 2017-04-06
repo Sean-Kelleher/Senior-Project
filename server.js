@@ -67,7 +67,7 @@ function timeVerify(start,end,eraStart,eraEnd){
 
 function escapeQuote(str){
   rep = "\\";
-  var ret = str.replace("'",rep + "'");
+  var ret = str.replace(/'/g,rep + "'");
   return ret;
 }
 app.get('/getevents', function(req,res){
@@ -174,6 +174,7 @@ app.post('/event', function(req, res) {
   var futureid = req.body.future;
   var pastid = req.body.past;
   var correct = timeVerify(startyear, endyear, startera, endera);
+  console.log(description);
   if(!correct)
   {
     res.send("Invald: Event cannot end before it begins.")
