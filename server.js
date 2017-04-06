@@ -55,7 +55,7 @@ function timeVerify(start,end,eraStart,eraEnd){
   }
   else if(eraStart=="BCE" && eraEnd=="BCE")
   {
-    if(end < start)
+    if(end > start)
       correct = false;
   }
   else if(eraEnd=="BCE" && eraStart=="CE")
@@ -136,16 +136,22 @@ app.post('/timeline', function(req, res) {
   res.send("success!");
 });
 
-app.get('/trend',function(req,res) {  
-  if(req.body.start>req.body.end)
+app.post('/trend',function(req,res) {  
+  var startyear=req.body.start;
+  var endyear = req.body.end;
+  var startera = req.body.startera;
+  var endera = req.body.endera;
+  var correct = timeVerify(startyear, endyear, startera, endera);
+  if(!correct)
   {
     res.send("Invalid: Trend cannot end before it's begun.");
   }
   else
   {
     var name = escapeQuote(req.body.name);
-    connection.query('INSERT INTO trend (start,end,name,type) VALUES("'+req.body.start+'","'+req.body.end+'","'+name+'","'
-      +req.body.eType.toLowerCase()+"';", 
+    var description = escapeQuote(req.body.description);
+    connection.query('INSERT INTO trend (startyear,endyear,name,type,description) VALUES("'+req.body.start+'","'+req.body.end+'","'+name+'","'
+      +req.body.eType.toLowerCase()+'","'+description+'");', 
       function(err,rows,fields){
         if(err)
         {
@@ -153,6 +159,7 @@ app.get('/trend',function(req,res) {
         }
       }
     );
+    res.send("success!");
   }
 });
 

@@ -24,11 +24,12 @@
 	</head>
 
 	<body onload="start()">
-		<form action="/trend">			
-			Beginning Year: <input type="number"name="start" id="begin"></input><br>
-			End Year: <input type="number" name="end" id="end"></input><br>
-			Type: <select name="type"><option>War</option><option>Science</option><option>Cultural</option><option>Political</option><option>Economic</option><option>Natural</option><option>Other</option></select><br>
-			Name: <input type="textarea" name="name"></input><br>
+		<form method = "post" action="/trend">			
+			Beginning Year: <input type="number"name="start" id="begin"></input><input type = "radio" name="startera" value="CE" checked>CE<input type="radio" name="startera" value="BCE">BCE <br>
+			End Year: <input type="number" name="end" id="end"></input><input type="radio" name="endera" value="CE" checked>CE<input type="radio" name="endera" value="BCE">BCE <br>
+			Type: <select name="eType"><option>War</option><option>Science</option><option>Cultural</option><option>Political</option><option>Economic</option><option>Natural</option><option>Other</option></select><br>
+			Name: <input type="textarea" cols="6" name="name"></input><br>
+			Description: <input type="textarea" name="description" cols="60" rows="10"></input><br>
 			<input type="submit" value="Submit"> 
 		</form><br>
 	</body>
