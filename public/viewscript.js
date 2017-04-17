@@ -217,19 +217,49 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 			connData.push(obj);
 		}
 	}
-	var line = vis.selectAll('line').data(connData).enter().append("svg:line")
-		line.attr('x1', function(d){return d.x1;})
+	//conndata: {x1: start1, y1: corr1.tier, x2: start2, y2: corr2.tier};
+	var line = vis.selectAll('path').data(connData).enter().append("svg:path")
+		line.attr('d',function(d){
+			var x1 = d.x1;
+			var y1 = 310 - d.y1 * 40;
+			var x2 = d.x2;
+			var y2 = 310 - d.y2 * 40;
+			var controlY1 = 0;
+			var controlY2 = 0;
+			console.log(y1);
+			if(y1 == y2)
+			{
+				var controlX1 = x1;
+				var controlX2 = x2;
+				if(y1 == 310)
+				{
+					controlY1 = y1 + 20;
+					controlY2 = y2 + 20;				
+				}
+				else
+				{
+					controlY1 = y1 - 20;
+					controlY2 = y2 - 20;	
+				}
+				return "M" + x1 + " " + y1 + " C " + controlX1 + " " + controlY1 + ", " + controlX2 + " " + controlY2 + ", " + " " + x2 + " " + y2;
+			}
+			else
+			{
+				return "M" + x1 + " " + y1 + " " + x2 + " " + y2;
+			}
+		})
+		.attr('stroke', 'black')
+		.attr('stroke-width', '1')
+		.attr('fill','none');
+		/*line.attr('x1', function(d){return d.x1;})
 		.attr('y1', function(d){return 310 - d.y1 * 40;})
 		.attr('x2', function(d){return d.x2;})
-		.attr('y2', function(d){return 310 - d.y2 * 40;})
-		.attr('stroke', 'black')
-		.attr('stroke-width', '1');
+		.attr('y2', function(d){return 310 - d.y2 * 40;})*/
 	var text = vis.selectAll('text').data(allData).enter().append("svg:text")
 		text.attr('x', function(d){return d.start + ((d.end-d.start)/6)})
 		.attr('y', function(d){return 296 - d.tier * 40})
 		.attr('size', '8px')
 		.text(function(d){return d.name});
-		
 	var bubble = vis.selectAll('rect').data(allData).enter().append('svg:rect');
 		bubble.attr('x', function(d){return d.start})
 		.attr('y', function(d){return 300 - d.tier * 40})
