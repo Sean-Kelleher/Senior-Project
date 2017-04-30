@@ -31,7 +31,7 @@ function trends(){
 			var end = data.timeline[0].end;
 			for(var i=0;i<data.trends.length;i++)
 			{			
-				var tr = {start:data.trends[i].startyear, end:data.trends[i].endyear, type:data.trends[i].type, name:data.trends[i].name};
+				var tr = {start:data.trends[i].startyear, end:data.trends[i].endyear, type:data.trends[i].type, name:data.trends[i].name, desc: data.trends[i].description};
 				trendAry.push(tr);
 			}
 		}
@@ -102,9 +102,9 @@ function timeline(){
 		drawTicks(length, interval, startyear, endyear, eraStart, eraEnd);
 	});
 }
-//ALSO NEEDED: type, name, description
+
 function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, pasts, futures, evIdPairs){
-	var vis = d3.select("div").append("svg:svg").attr('width', 1000).attr("height", 400);
+	var vis = d3.select("div").append("svg:svg").attr('width', 1035).attr("height", 400);
 	var tipSpace = d3.select("p");
 	var yearPix = 1000/length; //amount of pixels per year
 	var lengthAry = []; //array of 0-end
@@ -119,6 +119,7 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 	var pixels = 0;
 	var eventsLength = bubbleAry.length;
 	var tAry = timelineArys (startEra, endEra, start, end, length);
+	var textTier = true; //for deciding the x level a bubble's label should be on
 	lengthAry = tAry[0];
 	pixelsAry = tAry[1];
 	yearsAry = tAry[2];
@@ -137,6 +138,8 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 		startPix.push(pixelsAry[stIndex]);
 		endPix.push(pixelsAry[endIndex]);
 	}
+	startPix = addMargin(startPix);
+	endPix = addMargin(endPix);
 	for(var i =0; i < bubbleAry.length; i++)
 	{
 		obj = {name : bubbleAry[i].name, type: bubbleAry[i].type, start: startPix[i], end: endPix[i], 
@@ -195,8 +198,17 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 			var corr2 = evIdPairs.find(function(elem){
 				return elem.id == pasts[i].pastid;
 			})
-			var start1 = (corr1.endPix - corr1.startPix)/5 + corr1.startPix 
-			var start2 = (corr2.endPix - corr2.startPix)/5 + corr2.startPix
+			var start1 = 0;
+			var start2 = 0;
+			if(corr1.startYear == corr1.endYear)
+				start1 = corr1.startPix + 5;
+			else if(corr1.startYear != corr1.endYear)
+				start1 =  corr1.startPix  + (corr1.endPix-corr1.startPix)/2;
+			if(corr2.startYear == corr2.endYear)
+				start2 = corr2.startPix + 5;
+			else if(corr2.startYear != corr2.endYear)
+				start2 = corr2.startPix + (corr2.endPix-corr2.startPix)/2;
+
 			var obj = {x1: start1, y1: corr1.tier, x2: start2, y2: corr2.tier};
 			connData.push(obj);
 		}
@@ -211,27 +223,36 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 			var corr2 = evIdPairs.find(function(elem){
 				return elem.id == futures[i].futid;
 			})
-			var start1 = (corr1.endPix - corr1.startPix)/5 + corr1.startPix 
-			var start2 = (corr2.endPix - corr2.startPix)/5 + corr2.startPix
+
+			var start1 = 0;
+			var start2 = 0;
+			if(corr1.startYear == corr1.endYear)
+				start1 = corr1.startPix + 5;
+			else if(corr1.startYear != corr1.endYear)
+				start1 =  corr1.startPix  + (corr1.endPix-corr1.startPix)/2;
+			if(corr2.startYear == corr2.endYear)
+				start2 = corr2.startPix + 5;
+			else if(corr2.startYear != corr2.endYear)
+				start2 = corr2.startPix + (corr2.endPix-corr2.startPix)/2;
+			
 			var obj = {x1: start1, y1: corr1.tier, x2: start2, y2: corr2.tier};
 			connData.push(obj);
 		}
 	}
-	//conndata: {x1: start1, y1: corr1.tier, x2: start2, y2: corr2.tier};
+	
 	var line = vis.selectAll('path').data(connData).enter().append("svg:path")
 		line.attr('d',function(d){
 			var x1 = d.x1;
-			var y1 = 310 - d.y1 * 40;
+			var y1 = 306 - d.y1 * 40;
 			var x2 = d.x2;
-			var y2 = 310 - d.y2 * 40;
+			var y2 = 306 - d.y2 * 40;
 			var controlY1 = 0;
 			var controlY2 = 0;
-			console.log(y1);
 			if(y1 == y2)
 			{
 				var controlX1 = x1;
 				var controlX2 = x2;
-				if(y1 == 310)
+				if(y1 == 306)
 				{
 					controlY1 = y1 + 20;
 					controlY2 = y2 + 20;				
@@ -248,21 +269,29 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 				return "M" + x1 + " " + y1 + " " + x2 + " " + y2;
 			}
 		})
-		.attr('stroke', 'black')
+		.attr('stroke', '#8E9886')
 		.attr('stroke-width', '1')
 		.attr('fill','none');
-		/*line.attr('x1', function(d){return d.x1;})
-		.attr('y1', function(d){return 310 - d.y1 * 40;})
-		.attr('x2', function(d){return d.x2;})
-		.attr('y2', function(d){return 310 - d.y2 * 40;})*/
+		var lastTier = allData[0].tier;
 	var text = vis.selectAll('text').data(allData).enter().append("svg:text")
 		text.attr('x', function(d){return d.start + ((d.end-d.start)/6)})
-		.attr('y', function(d){return 296 - d.tier * 40})
-		.attr('size', '8px')
+		.attr('y', function(d){
+			var ret = 0;
+			if(d.tier == lastTier && d != allData[0])
+				textTier = !textTier;
+			if(textTier)
+				ret = 296 - d.tier * 50;
+			else
+				ret = 284 -d.tier * 50;
+			lastTier = d.tier;
+			return ret
+		})
+		.attr('text-anchor','middle')
+		.attr('class','titleStyle')
 		.text(function(d){return d.name});
 	var bubble = vis.selectAll('rect').data(allData).enter().append('svg:rect');
 		bubble.attr('x', function(d){return d.start})
-		.attr('y', function(d){return 300 - d.tier * 40})
+		.attr('y', function(d){return 300 - d.tier * 50})
 		.attr('width', function(d){
 			var w = 10;
 			if(d.end != d.start)
@@ -352,11 +381,8 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 	}
 	function bubbleExit(){
 		tipSpace.selectAll('p').remove();
-	}
-
-	
+	}	
 	timeline();
-
 }
 
 function infoWindow(data){
@@ -370,7 +396,8 @@ function infoWindow(data){
 }
 function drawTrends(trends, length, start, interval, end, startEra, endEra)
 {
-	var vis = d3.select("div").append("svg:svg").attr('width', 1000).attr("height", 40);
+	var tipSpace = d3.select("p");
+	var vis = d3.select("div").append("svg:svg").attr('width', 1035).attr("height", 40);
 	var yearPix = 1000/length; //amount of pixels per year
 	var yearsAry = []; //an array that contains all the years
 	var pixelsAry = []; //am array that contains the pixel location for each year
@@ -400,9 +427,11 @@ function drawTrends(trends, length, start, interval, end, startEra, endEra)
 		startPix.push(pixelsAry[stIndex]);
 		endPix.push(pixelsAry[endIndex]);
 	}
+	startPix = addMargin(startPix);
+	endPix = addMargin(endPix);
 	for(var i = 0; i < trendsLength; i++)
 	{
-		var obj = {start: startPix[i] + 10, end: endPix[i] + 10, type: trends[i].type, name: trends[i].name};
+		var obj = {startyear:trends[i].start, endyear: trends[i].end, start: startPix[i] + 10, end: endPix[i] + 10, type: trends[i].type, name: trends[i].name, desc:trends[i].desc};
 		allData.push(obj);
 	}
 	
@@ -413,6 +442,11 @@ function drawTrends(trends, length, start, interval, end, startEra, endEra)
 			var ret = x1 + ",25 " + x1 + ",15 " + x2 + ",15 " + x2 + ",25";
 			return ret;
 		})
+		.attr('class',function(d){
+			var ret = d.name + ", " + d.startyear + " - " + d.endyear;
+			return ret;
+		})
+		.attr('id',function(d){return d.desc})
 		.attr('stroke',function(d){
 				var stroke = "";
 				switch(d.type){
@@ -467,16 +501,54 @@ function drawTrends(trends, length, start, interval, end, startEra, endEra)
 						break;
 				}
 				return f;
-			});
-			/*
-			//	TODO: something similar to the above with the appending of a sidebar upon bubble mouseover
-			.on('mouseenter',movementEnter)
-			.on('mouseout',movementExit)
-			*/
+			})
+			.attr('style','cursor:pointer;')
+			.on('mouseenter',trendEnter)
+			.on('mouseout',trendExit);
+			
+	function trendEnter(){
+		var current = d3.select(this);
+		var typeColor = current.attr('stroke');
+		var lightColor = "";
+		switch(typeColor){
+			case "#ff6600": //war
+				lightColor = "#ff8844";
+				break;
+			case "#898989": //other
+				lightColor = "#979797";
+				break;
+			case "#66ff33": //natural
+				lightColor = "#88ff66";
+				break;
+			case "#33ccff": //scitech
+				lightColor = "#77eeff";
+				break;
+			case "#669999": //political
+				lightColor = "#88bbbb";
+				break;
+			case "#ccccff": //economic
+				lightColor = "#dedeff";
+				break;
+			case "#ffcc99": //cultural
+				lightColor = "#ffeeaa";
+				break;
+		}
+		var desc = current.attr('id');
+		var titleInfo = current.attr('class');
+		var title = tipSpace.append('p');
+		title.text(titleInfo)
+		.attr('style',' font-weight: bold; padding: 3px; border:3px solid '+typeColor+'; background-color: '+ lightColor+"; border-radius: 4px;");
+		var tip = tipSpace.append('p');
+		tip.text(desc)
+		.attr('style','padding: 3px; border:3px solid '+typeColor+'; background-color: '+ lightColor+"; border-radius: 4px;");
+	}
+	function trendExit(){
+		tipSpace.selectAll('p').remove();
+	}
 	var text = vis.selectAll('text').data(allData).enter().append("svg:text")
 		text.attr('x', function(d){return d.start})
 		.attr('y', '12')
-		.attr('size', '8px')
+		.attr('class','titleStyle')
 		.text(function(d){return d.name});
 }
 function drawTicks(length, interval, startyear, endyear, startEra, endEra){
@@ -489,7 +561,7 @@ function drawTicks(length, interval, startyear, endyear, startEra, endEra){
 	var indices = [];
 	var p = 10;
 	var p2 = 0;
-	var vis = d3.select("div").append("svg:svg").attr('width', 1000).attr("height", 30);
+	var vis = d3.select("div").append("svg:svg").attr('width', 1035).attr("height", 30);
 	var tArys = timelineArys(startEra, endEra, startyear, endyear, length);//[lengthAry, pixelsAry, yearsAry]
 	var yearsAry = tArys[2];
 	var pixelsAry = tArys[1];
@@ -542,15 +614,16 @@ function drawTicks(length, interval, startyear, endyear, startEra, endEra){
 		textAry.push(obj);
 	}
 	var rect = vis.selectAll('rect').data(ticksAry).enter().append("svg:rect");
-		rect.attr('x', function(d){return d})
+		rect.attr('x', function(d){return d+15})
 		.attr('y', 0)
 		.attr('height', '15px')
 		.attr('width', '2px')
 		.attr('fill', 'black');
 	var text = vis.selectAll('text').data(textAry).enter().append("svg:text");
-		text.attr('x', function(d){return d.pix})
+		text.attr('x', function(d){return d.pix +15})
 		.attr('y', 30)
 		.attr('size', '9px')
+		.attr('text-anchor','middle')
 		.text(function(d){return d.year});
 }
 function timelineArys(startEra, endEra, start, end, length){
@@ -622,6 +695,13 @@ function rangeAry(obj){
 	{
 		ary.push(start);
 		start++
+	}
+	return ary;
+}
+function addMargin(ary){
+	for(var i =0; i < ary.length; i++)
+	{
+		ary[i]+= 15;
 	}
 	return ary;
 }

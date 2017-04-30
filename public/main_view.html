@@ -10,14 +10,24 @@
 			float: right;
 		}
 		#graph{
-			width: 1000px;
+			width: 1040px;
 			border: 1px dotted black;
-		}	
+		}
+		span{
+			border: 1px solid;
+			border-radius: 3px;
+			padding: 3px;
+		}
+		.titleStyle{
+			fill: #333333;
+			font-size: 12px;
+			font-family: sans-serif;
+		}
 		</style>
 	</head>
 	<body>		
 		<p id="tipspace"></p>
-		<div id="graph"></div>
-		
+		<div id="graph"></div><br>
+		<p id="colorKey"><span style='border-color: #ff6600; background-color: #ff6600;'>War Event</span> <span style='background-color: #66ff33; border-color: #66ff33;'>Natural Event</span> <span  style='background-color: #33ccff; border-color: #33ccff;'>Science/Technology Event</span> <span  style='background-color: #669999; border-color: #669999;'>Political Event</span> <span style='background-color: #ccccff; border-color: #ccccff;'>Economic Event</span> <span style='background-color: #ffcc99; border-color: #ffcc99;'>Cultural Event</span> <span style='background-color: #898989; border-color: #898989;'>Other Event</span></p>
 	</body>
 </html>
