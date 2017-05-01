@@ -83,7 +83,7 @@ app.get('/getevents', function(req,res){
 });
 
 app.get('/gettrends',function(req,res){
-  connection.query('SELECT startyear, endyear, type, name FROM trend;',
+  connection.query('SELECT startyear, endyear, type, name, description FROM trend;',
     function(err1, rows1, fields1) {
       connection.query('SELECT length, intervals, start, end, era_start, era_end FROM timeline;',
         function(err2, rows2, fields2) {
@@ -174,7 +174,6 @@ app.post('/event', function(req, res) {
   var futureid = req.body.future;
   var pastid = req.body.past;
   var correct = timeVerify(startyear, endyear, startera, endera);
-  console.log(description);
   if(!correct)
   {
     res.send("Invald: Event cannot end before it begins.")
