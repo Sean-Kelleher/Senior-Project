@@ -239,7 +239,6 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 			connData.push(obj);
 		}
 	}
-	
 	var line = vis.selectAll('path').data(connData).enter().append("svg:path")
 		line.attr('d',function(d){
 			var x1 = d.x1;
@@ -274,7 +273,7 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 		.attr('fill','none');
 		var lastTier = allData[0].tier;
 	var text = vis.selectAll('text').data(allData).enter().append("svg:text")
-		text.attr('x', function(d){return d.start + ((d.end-d.start)/6)})
+		text.attr('x', function(d){return d.start})
 		.attr('y', function(d){
 			var ret = 0;
 			if(d.tier == lastTier && d != allData[0])
@@ -286,7 +285,6 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 			lastTier = d.tier;
 			return ret
 		})
-		.attr('text-anchor','middle')
 		.attr('class','titleStyle')
 		.text(function(d){return d.name});
 	var bubble = vis.selectAll('rect').data(allData).enter().append('svg:rect');
@@ -339,7 +337,6 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 				return ret;
 			})
 		.attr('style','cursor:pointer;')
-		.on('click', function(d){infoWindow(d)})
 		.on('mouseenter',bubbleEnter)
 		.on('mouseout',bubbleExit);
 	
@@ -385,15 +382,6 @@ function drawBubble(bubbleAry, length, start, interval, end, startEra, endEra, p
 	timeline();
 }
 
-function infoWindow(data){
-	var title = data.name;
-	var description = data.desc;
-	var win = window.open("","","scrollbars=yes,location=no,height=300,width=250,toolbar=no,left=200,top=200,status=no,location=no,titlebar=no");
-	win.document.write(
-		'<div style="border:1px dotted black; text-align: center; float: center; width:80%">'+title+'</div>'+
-		'<div style="border:1px dotted black; text-align: center; width:80%">'+description+'</div>'
-		);
-}
 function drawTrends(trends, length, start, interval, end, startEra, endEra)
 {
 	var tipSpace = d3.select("p");
