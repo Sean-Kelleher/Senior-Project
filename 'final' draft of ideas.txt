@@ -1,4 +1,0 @@
-database of historical events and people ("entities") during a certain time period or civilization or whatever. 
-Each entity will connect to others according to what other events relate to it. Put this on a visual timeline.
-
-Focus on a single time period, has a certain general trend or topic. like an empire expanding, a war being fought, a civilization developing, political happenings. Figure out the most salient entities, make the connections between them.
