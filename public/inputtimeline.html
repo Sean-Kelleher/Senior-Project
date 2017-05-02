@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<html>
+	<head>
+		<title>Create a Timeline</title>
+		<link rel="stylesheet" href="style.css">
+		<link href="https://fonts.googleapis.com/css?family=PT+Serif" rel="stylesheet">
+		<style type="text/css">
+			body{font-family: 'PT Serif', serif;}
+		</style>
+	</head>
+
+	<body>
+		<form action="/timeline" method="post">
+			Title: <input type="text" col='8' id='title' name='title'><br>
+			Starting Year: <input type="text" col="5" id="startYear" name="start"></input> <select id="era1" name="era1"><option>CE</option><option>BCE</option></select><br>
+			Ending Year: <input type="text" col="5" id="endYear" name="end"></input> <select id="era2" name="era2"><option>CE</option><option>BCE</option></select><br>
+			Intervals:  <input type="text" col="4" id="interval" name="interval"></input><br>
+			<input type="submit"></input>
+		</form>
+	</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<html>
+	<head>
+		<title>Create an Event</title>
+		<script src="d3.min.js"></script>
+		<script type="text/javascript">
+		function start(){
+			var past = document.getElementById("past");
+			var future = document.getElementById("future");
+
+			d3.json('getevents', function(data){
+				for(var i=0;i<data.length;i++)
+				{
+					var opt = document.createElement("option");
+					opt.text=data[i].name;
+					opt.value=data[i].id;
+					future.add(opt);
+				}
+				for(var i=0;i<data.length;i++)
+				{
+					var opt = document.createElement("option");
+					opt.text=data[i].name;
+					opt.value=data[i].id;
+					past.add(opt);
+				}
+			});
+		};
+		</script>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<link rel="stylesheet" href="style.css">
+		<link href="https://fonts.googleapis.com/css?family=PT+Serif" rel="stylesheet">
+		<style type="text/css">
+			body{font-family: 'PT Serif', serif;}
+		</style>
+	</head>
+
+	<body onload='start()'>
+		<form method="post" action="/event">
+			<div class="row">
+				
+				<div class="col-md-3">
+					Name: <input type="text" cols="6" name="name"></input><br>
+					Start Year: <input type="text"  style="width:50px;" name="startyear"></input>
+					<input type = "radio" name="startera" value="CE" checked>CE<input type="radio" name="startera" value="BCE">BCE <br>
+					End Year: <input type="text"  style="width:50px;" name="endyear"></input> 
+					<input type="radio" name="endera" value="CE" checked>CE<input type="radio" name="endera" value="BCE">BCE <br>
+					Type: <select id="eventtype" name="type"><option>War</option><option>Science/Technology</option><option>Cultural</option><option>Political</option><option>Economic</option><option>Natural</option><option>Other</option></select>
+				</div>
+			</div>
+			<div class="row">
+				<br>
+				<div class="col-md-5">
+					<div>Description: <br><textarea name="description" cols="60" rows="10"></textarea></div><br>
+					<input type="submit">
+				</div>
+				<div class="col-md-3">
+					<div id="pastdiv">Past relations: <select id="past" name="past"><option></option></select></div><br><br>
+					<div id="futurediv">Future relations: <select id="future" name="future"><option></option></select></div>
+				</div>
+			</div>
+		</form>
+	</body>
+</html>

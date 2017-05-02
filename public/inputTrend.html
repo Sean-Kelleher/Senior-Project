@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<html>
+	<head>
+		<title>Create a Trend</title>
+		<script src="d3.min.js"></script>
+		<script type="text/javascript">
+			function start(){
+				d3.json('getyears', function (data){
+					var start=data[0].start;
+					var end=data[0].end;
+					document.getElementById('begin').min=start;
+					document.getElementById('end').min=start;
+					document.getElementById('begin').max=end;
+					document.getElementById('end').max=end;
+				})
+			}
+		</script>
+		<link rel="stylesheet" href="style.css">
+		<link href="https://fonts.googleapis.com/css?family=PT+Serif" rel="stylesheet">
+		<style type="text/css">
+			body{font-family: 'PT Serif', serif;}
+		</style>
+	</head>
+
+	<body onload="start()">
+		<form method = "post" action="/trend">			
+			Beginning Year: <input type="number"name="start" id="begin"></input><input type = "radio" name="startera" value="CE" checked>CE<input type="radio" name="startera" value="BCE">BCE <br>
+			End Year: <input type="number" name="end" id="end"></input><input type="radio" name="endera" value="CE" checked>CE<input type="radio" name="endera" value="BCE">BCE <br>
+			Type: <select name="eType"><option>War</option><option>Science</option><option>Cultural</option><option>Political</option><option>Economic</option><option>Natural</option><option>Other</option></select><br>
+			Name: <input type="textarea" cols="6" name="name"></input><br>
+			Description: <input type="textarea" name="description" cols="60" rows="10"></input><br>
+			<input type="submit" value="Submit"> 
+		</form><br>
+	</body>
+</html>
