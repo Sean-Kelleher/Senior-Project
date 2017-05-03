@@ -33,7 +33,7 @@ CREATE TABLE timeline(
 	era_start ENUM('BCE','CE') NOT NULL,
 	era_end ENUM('BCE','CE') NOT NULL,
 	length INT,
-	intervals INT DEFAULT 1
+	intervals INT
 );
 CREATE TABLE trend(
 	trend_id INT PRIMARY KEY AUTO_INCREMENT,
