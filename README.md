@@ -6,6 +6,6 @@ The server runs using node.js, interacting with a MySQL database created using s
 Create a timeline using inputtimeline.html.
 Create trends using inputtrend.html.
 Create events using inputevent.html.
-main_view.html displays an interactive visualization of the database, as seen below:
+main_view.html displays an interactive visualization of the database. The user can hover over the event bubble or trend for a description, as seen below.
 
 <img src='screenshot.png'>
