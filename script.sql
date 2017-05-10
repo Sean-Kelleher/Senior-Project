@@ -7,7 +7,7 @@ CREATE TABLE events(
 	description VARCHAR(255) DEFAULT " ",
 	startyear INT NOT NULL DEFAULT "0",
 	startera ENUM('BCE','CE') NOT NULL,
-	type ENUM('political', 'natural', 'war', 'sci-tech', 'economic', 'cultural', 'other') NOT NULL
+	type ENUM('political', 'natural', 'war', 'sci-tech', 'economic', 'cultural', 'other') NOT NULL,
 	endyear INT NOT NULL DEFAULT "0",
 	endera ENUM('BCE','CE') NOT NULL
 );
