@@ -4,7 +4,7 @@ USE historydb;
 CREATE TABLE events(
 	id INT PRIMARY KEY AUTO_INCREMENT,
 	name VARCHAR(255) NOT NULL,
-	description VARCHAR(255) DEFAULT " ",
+	description TEXT DEFAULT NULL,
 	startyear INT NOT NULL DEFAULT "0",
 	startera ENUM('BCE','CE') NOT NULL,
 	type ENUM('political', 'natural', 'war', 'sci-tech', 'economic', 'cultural', 'other') NOT NULL,
