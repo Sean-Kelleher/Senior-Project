@@ -9,7 +9,7 @@ CREATE TABLE events(
 	startera ENUM('BCE','CE') NOT NULL,
 	type ENUM('political', 'natural', 'war', 'sci-tech', 'economic', 'cultural', 'other') NOT NULL
 	endyear INT NOT NULL DEFAULT "0",
-	endera ENUM('BCE','CE') NOT NULL,	
+	endera ENUM('BCE','CE') NOT NULL
 );
 CREATE TABLE past_connections(
 	event_id INT,
