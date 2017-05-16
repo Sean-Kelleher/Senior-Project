@@ -9,3 +9,22 @@ Create events using inputevent.html.
 main_view.html displays an interactive visualization of the database. The user can hover over the event bubble or trend for a description, as seen below.
 
 <img src='screenshot.png'>
+
+## Setting Up the Database
+
+You'll need to go through the following steps in the MySQL prompt to get this software running:
+
+```
+CREATE DATABASE historydb;
+CREATE USER 'nodeman'@'localhost' IDENTIFIED BY 'node';
+GRANT ALL PRIVILEGES ON * . * TO 'nodeman'@'localhost';
+source ~/Senior-Project/script.sql;
+```
+
+Then run the server with the following command:
+
+```
+node server.js
+```
+
+Then you should be able to access the pages under `localhost:3000`.
