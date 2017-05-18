@@ -121,6 +121,35 @@ app.get('/getbubbles',function(req,res){
     });
 });
 
+app.post('/deleteEvent',function(req, res){
+  var toDelete = req.body.selection;
+  connection.query('DELETE FROM past_connections WHERE event_id = ' + toDelete + ';',
+  function(err, rows, fields) {
+        if (err) 
+        {
+          throw err;
+        }
+      }
+    );
+  connection.query('DELETE FROM future_connections WHERE event_id = ' + toDelete + ';',
+  function(err, rows, fields) {
+        if (err) 
+        {
+          throw err;
+        }
+      }
+    );
+  connection.query('DELETE FROM events WHERE id = ' + toDelete + ';',
+  function(err, rows, fields) {
+        if (err) 
+        {
+          throw err;
+        }
+      } 
+    );
+  res.send("success!");
+});
+
 app.post('/timeline', function(req, res) {
   var total = arithmetic(req.body.start, req.body.end,req.body.era1,req.body.era2);
   var title = escapeQuote(req.body.title);
@@ -150,8 +179,8 @@ app.post('/trend',function(req,res) {
   {
     var name = escapeQuote(req.body.name);
     var description = escapeQuote(req.body.description);
-    connection.query('INSERT INTO trend (startyear,endyear,name,type,description) VALUES("'+req.body.start+'","'+req.body.end+'","'+name+'","'
-      +req.body.eType.toLowerCase()+'","'+description+'");', 
+    connection.query('INSERT INTO trend (startyear,endyear,name,type,description) VALUES("'+req.body.start+'","'+
+      req.body.end+'","'+name+'","'+req.body.eType.toLowerCase()+'","'+description+'");', 
       function(err,rows,fields){
         if(err)
         {
